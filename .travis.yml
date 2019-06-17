@@ -8,6 +8,7 @@ install:
 script:
   - lerna bootstrap
   - lerna run test
+  - lerna run lint
 
 after_success:
   - codecov
