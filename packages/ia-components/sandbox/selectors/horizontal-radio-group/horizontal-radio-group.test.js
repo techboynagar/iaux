@@ -16,6 +16,7 @@ describe('HorizontalRadioGroup', () => {
       options={options}
       name="test-selectors"
       selectedValue="value 2"
+      wrapperStyle="rounded"
       onChange={() => {}}
     />
   );
