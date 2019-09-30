@@ -32,6 +32,7 @@
     import { html, render } from 'lit-html';
     import '../lib/radio-player.js';
     import RadioPlayerConfig from '../lib/models/radio-player-config.js'
+    import { AudioSource } from '@internetarchive/audio-element';
     // import TranscriptEntryConfig from '../lib/src/models/transcript-entry-config.js';
     // import transcript from './transcript.js';
 
@@ -42,7 +43,16 @@
 
     // const totalTime = convertedTranscript[convertedTranscript.length - 1].end;
 
-    const config = new RadioPlayerConfig('Voice of America', '7:00pm', './logo.jpg', './waveform.png')
+    const audioSource = new AudioSource(
+      'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
+      'audio/mpeg');
+    const config = new RadioPlayerConfig(
+      'Voice of America',
+      '7:00pm',
+      './logo.jpg',
+      './waveform.png',
+      [audioSource]
+    )
 
     // title: string,
     // startTime: string,
