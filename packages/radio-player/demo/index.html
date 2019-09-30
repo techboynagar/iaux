@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      background: #000;
+    }
+
+    radio-player {
+      display: block;
+      border-bottom: 1px solid white;
+      line-height: 1.5rem;
+      --timeColor: white;
+      --timeColumnWidth: 5rem;
+      --transcriptHeight: 200px;
+
+      --autoScrollButtonFontColor: black;
+      --autoScrollButtonBackgroundColor: white;
+
+      --normalTextColor: gray;
+      --activeTextColor: white;
+      --searchResultInactiveBorderColor: gray;
+      --searchResultActiveBorderColor: green;
+    }
+  </style>
+</head>
+<body>
+  <div id="demo"></div>
+
+  <script type="module">
+    import { html, render } from 'lit-html';
+    import '../lib/src/radio-player.js';
+    // import TranscriptEntryConfig from '../lib/src/models/transcript-entry-config.js';
+    // import transcript from './transcript.js';
+
+    // const convertedTranscript = transcript.map((entry) => {
+    //   return new TranscriptEntryConfig(
+    //     entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
+    // })
+
+    // const totalTime = convertedTranscript[convertedTranscript.length - 1].end;
+
+    render(
+      html`
+        <radio-player
+          showContextZones=true
+          currentTime=10
+          @autoScrollChanged=${autoScrollChanged}
+          >
+        </radio-player>
+      `,
+      document.querySelector('#demo')
+    );
+
+    window.setTimeout(() => {
+      document.querySelector('radio-player').autoScroll = true;
+    }, 0);
+
+    function currentTimeChanged(e) {
+      document.querySelector('radio-player').currentTime = e.detail.currentTime;
+    }
+
+    function topContextHeightChanged(e) {
+      document.querySelector('radio-player').topContextHeight = e.detail.height;
+    }
+
+    function bottomContextHeightChanged(e) {
+      document.querySelector('radio-player').bottomContextHeight = e.detail.height;
+    }
+
+    function transcriptHeightChanged(e) {
+      document.querySelector('radio-player').style.setProperty('--transcriptHeight', `${e.detail.height}px`);
+    }
+
+    function showContextZonesChanged(e) {
+      document.querySelector('radio-player').showContextZones = e.detail.showContextZones;
+    }
+
+    function searchResultIndexChanged(e) {
+      document.querySelector('radio-player').selectedSearchResultIndex = e.detail.searchResultIndex;
+    }
+
+    function shouldAutoScroll(e) {
+      document.querySelector('radio-player').autoScroll = e.detail.autoScroll;
+    }
+
+    function autoScrollChanged(e) {
+      document.querySelector('radio-player-dev-options').autoScroll = e.detail.autoScroll;
+    }
+  </script>
+</body>
+</html>
