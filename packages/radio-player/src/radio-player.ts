@@ -2,7 +2,7 @@ import { LitElement, html, css, customElement, property, CSSResult, TemplateResu
 import RadioPlayerConfig from './models/radio-player-config';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { WaveformProgress, ZoneOfSilence } from '@internetarchive/waveform-progress';
-import '@internetarchive/playback-controls';
+import { PlaybackControls } from '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
 
 @customElement('radio-player')
