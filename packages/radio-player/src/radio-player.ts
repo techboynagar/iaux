@@ -1,8 +1,9 @@
 import { LitElement, html, css, customElement, property, CSSResult, TemplateResult } from 'lit-element';
 import RadioPlayerConfig from './models/radio-player-config';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
-import { WaveformProgress, ZoneOfSilence } from '@internetarchive/waveform-progress';
-import { PlaybackControls } from '@internetarchive/playback-controls';
+import '@internetarchive/audio-element';
+import '@internetarchive/waveform-progress';
+import '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
 
 @customElement('radio-player')
@@ -46,6 +47,7 @@ export class RadioPlayer extends LitElement {
   get waveFormProgressTemplate() {
     return html`
       <waveform-progress
+        interactive=true
         .waveformUrl=${this.waveformUrl}
         .percentComplete=${this.percentComplete}>
       </waveform-progress>
@@ -59,7 +61,6 @@ export class RadioPlayer extends LitElement {
   get audioElementTemplate() {
     return html`
       <audio-element
-        id="audioPlayer"
         .sources=${this.audioSources}
         .playbackRate=${this.playbackRate}
         @timeupdate=${this.handleTimeChange}
@@ -117,8 +118,8 @@ export class RadioPlayer extends LitElement {
   //   return this.transcriptConfig ? this.transcriptConfig.entries : [];
   // }
 
-  get audioPlayer(): AudioElement | null {
-    return this.shadowRoot ? this.shadowRoot.getElementById('audioPlayer') as AudioElement : null;
+  get audioElement(): AudioElement | null {
+    return this.shadowRoot ? this.shadowRoot.querySelector('audio-element') as AudioElement : null;
   }
 
   changePlaybackRate(e: Event): void {
@@ -127,20 +128,20 @@ export class RadioPlayer extends LitElement {
   }
 
   backButtonHandler(): void {
-    this.audioPlayer && this.audioPlayer.seekBy(-10);
+    this.audioElement && this.audioElement.seekBy(-10);
   }
 
   playPauseButtonHandler(): void {
     this.isPlaying = !this.isPlaying;
     if (this.isPlaying) {
-      this.audioPlayer && this.audioPlayer.play();
+      this.audioElement && this.audioElement.play();
     } else {
-      this.audioPlayer && this.audioPlayer.pause();
+      this.audioElement && this.audioElement.pause();
     }
   }
 
   forwardButtonHandler(): void {
-    this.audioPlayer && this.audioPlayer.seekBy(10);
+    this.audioElement && this.audioElement.seekBy(10);
   }
 
   handleDurationChange(e: CustomEvent): void {
@@ -156,7 +157,8 @@ export class RadioPlayer extends LitElement {
   scrubberBarValueChanged(e: CustomEvent): void {
     const percentage = e.detail.value;
     const newTime = this.duration * (percentage / 100);
-    this.audioPlayer && this.audioPlayer.seekTo(newTime);
+    this.audioElement && this.audioElement.seekTo(newTime);
+    this.percentComplete = percentage;
   }
 
   // transcriptEntryChanged(e: CustomEvent): void {
@@ -165,7 +167,7 @@ export class RadioPlayer extends LitElement {
 
   transcriptEntrySelected(e: CustomEvent): void {
     const newTime = e.detail.entry.startTime;
-    this.audioPlayer && this.audioPlayer.seekTo(newTime);
+    this.audioElement && this.audioElement.seekTo(newTime);
   }
 
   static get styles(): CSSResult {

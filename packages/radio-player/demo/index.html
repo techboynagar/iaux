@@ -30,7 +30,8 @@
 
   <script type="module">
     import { html, render } from 'lit-html';
-    import '../lib/src/radio-player.js';
+    import '../lib/radio-player.js';
+    import RadioPlayerConfig from '../lib/models/radio-player-config.js'
     // import TranscriptEntryConfig from '../lib/src/models/transcript-entry-config.js';
     // import transcript from './transcript.js';
 
@@ -41,12 +42,19 @@
 
     // const totalTime = convertedTranscript[convertedTranscript.length - 1].end;
 
+    const config = new RadioPlayerConfig('Voice of America', '7:00pm', './logo.jpg', './waveform.png')
+
+    // title: string,
+    // startTime: string,
+    // logoUrl: string,
+    // waveformUrl: string,
+    // audioSources: AudioSource[]
+
+
     render(
       html`
         <radio-player
-          showContextZones=true
-          currentTime=10
-          @autoScrollChanged=${autoScrollChanged}
+          .config=${config}
           >
         </radio-player>
       `,
