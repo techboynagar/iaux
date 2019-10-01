@@ -10,7 +10,6 @@ import '@internetarchive/scrubber-bar';
 export class RadioPlayer extends LitElement {
   @property({ type: RadioPlayerConfig }) config: RadioPlayerConfig | undefined = undefined;
   @property({ type: TranscriptConfig }) transcriptConfig: TranscriptConfig | undefined = undefined;
-  @property({ type: Array }) currentTranscriptEntry: TranscriptEntryConfig | undefined = undefined;
   @property({ type: Number }) percentComplete = 0;
   @property({ type: Boolean }) isPlaying = false;
   @property({ type: Number }) currentTime = 0;
@@ -29,7 +28,6 @@ export class RadioPlayer extends LitElement {
           ${this.scrubberBarTemplate}
         </div>
       </div>
-      ${this.transcriptControllerTemplate}
       ${this.transcriptViewTemplate}
     `;
   }
@@ -93,19 +91,7 @@ export class RadioPlayer extends LitElement {
     `;
   }
 
-  get transcriptControllerTemplate(): TemplateResult {
-    return html``;
-  //   return html`
-  //     <transcript-view
-  //       .config=${this.transcriptConfig}
-  //       .currentTime=${this.currentTime}
-  //       @transcriptEntryChanged=${this.transcriptEntryChanged}>
-  //     </transcript-controller>
-  // `;
-  }
-
   get transcriptViewTemplate(): TemplateResult {
-    // return html``;
     return html`
       <transcript-view
         .config=${this.transcriptConfig}
@@ -161,10 +147,6 @@ export class RadioPlayer extends LitElement {
     this.audioElement && this.audioElement.seekTo(newTime);
     this.percentComplete = percentage;
   }
-
-  // transcriptEntryChanged(e: CustomEvent): void {
-  //   this.currentTranscriptEntry = e.detail.entry;
-  // }
 
   transcriptEntrySelected(e: CustomEvent): void {
     const newTime = e.detail.entry.startTime;
