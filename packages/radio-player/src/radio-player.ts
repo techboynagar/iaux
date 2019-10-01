@@ -20,21 +20,37 @@ export class RadioPlayer extends LitElement {
   render(): TemplateResult {
     return html`
       ${this.audioElementTemplate}
-      <div class="row">
-        ${this.collectionImageTemplate}
+      <main>
+        ${this.titleDateTemplate}
+        ${this.collectionLogoTemplate}
         ${this.playbackControlsTemplate}
         <div class="waveform-scrubber-container">
           ${this.waveFormProgressTemplate}
           ${this.scrubberBarTemplate}
         </div>
-      </div>
-      ${this.transcriptViewTemplate}
+        ${this.searchSectionTemplate}
+        ${this.transcriptViewTemplate}
+      </main>
     `;
   }
 
-  get collectionImageTemplate() {
+  get titleDateTemplate(): TemplateResult {
     return html`
-      <img class="collection-image" src=${this.logoUrl} />
+      <div class="title-date">
+        <div class="title">
+          Voice of America
+        </div>
+
+        <div class="date">
+          2019-09-12 17:00:00
+        </div>
+      </div>
+    `;
+  }
+
+  get collectionLogoTemplate(): TemplateResult {
+    return html`
+      <img class="collection-logo" src=${this.logoUrl} />
     `;
   }
 
@@ -42,7 +58,7 @@ export class RadioPlayer extends LitElement {
     return this.config ? this.config.logoUrl : '';
   }
 
-  get waveFormProgressTemplate() {
+  get waveFormProgressTemplate(): TemplateResult {
     return html`
       <waveform-progress
         interactive=true
@@ -57,7 +73,7 @@ export class RadioPlayer extends LitElement {
     return this.config ? this.config.waveformUrl : '';
   }
 
-  get audioElementTemplate() {
+  get audioElementTemplate(): TemplateResult {
     return html`
       <audio-element
         .sources=${this.audioSources}
@@ -72,7 +88,7 @@ export class RadioPlayer extends LitElement {
     return this.config ? this.config.audioSources : [];
   }
 
-  get playbackControlsTemplate() {
+  get playbackControlsTemplate(): TemplateResult {
     return html`
       <playback-controls
         @back-button-pressed=${this.backButtonHandler}
@@ -82,7 +98,7 @@ export class RadioPlayer extends LitElement {
     `;
   }
 
-  get scrubberBarTemplate() {
+  get scrubberBarTemplate(): TemplateResult {
     return html`
       <scrubber-bar
         .value=${this.percentComplete}
@@ -93,11 +109,21 @@ export class RadioPlayer extends LitElement {
 
   get transcriptViewTemplate(): TemplateResult {
     return html`
-      <transcript-view
-        .config=${this.transcriptConfig}
-        .currentTime=${this.currentTime}
-        @transcriptEntrySelected=${this.transcriptEntrySelected}>
-      </transcript-view>
+      <div class="transcript-container">
+        <transcript-view
+          .config=${this.transcriptConfig}
+          .currentTime=${this.currentTime}
+          @transcriptEntrySelected=${this.transcriptEntrySelected}>
+        </transcript-view>
+      </div>
+    `;
+  }
+
+  get searchSectionTemplate(): TemplateResult {
+    return html`
+      <div class="search-section">
+        <input type="text" class="search-box" />
+      </div>
     `;
   }
 
@@ -155,41 +181,75 @@ export class RadioPlayer extends LitElement {
 
   static get styles(): CSSResult {
     return css`
-      :host {
-        display: inline-block;
+      main {
+        display: grid;
+        grid-gap: 0.5rem;
       }
 
-      .container {
-        display: block;
-        position: relative;
-        background-color: white;
-        width: 100%;
-        height: 100%;
+      /* mobile view */
+      @media (max-width: 30em) {
+        main {
+          grid-template-areas:
+            "collection-logo title-date"
+            "waveform-scrubber waveform-scrubber"
+            "playback-controls playback-controls"
+            "search-section search-section"
+            "transcript-container transcript-container";
+        }
+        .collection-logo {
+          width: 192px;
+        }
+        .date {
+          text-align: left;
+        }
+      }
+
+      /* wide view */
+      @media (min-width: 30em) {
+        main {
+          grid-template-columns: 192px 200px 1fr;
+          grid-template-areas:
+            "title-date title-date title-date"
+            "collection-logo playback-controls waveform-scrubber"
+            "search-section transcript-container transcript-container";
+        }
+        .title-date {
+          display: flex;
+          justify-content: space-between;
+        }
+      }
+
+      .title-date {
+        grid-area: title-date;
       }
 
       waveform-progress {
         width: 100%;
-        height: 5rem;
+        height: 3rem;
       }
 
-      .fill {
-        position: absolute;
-        height: 100%;
-        background-color: lightblue;
+      .transcript-container {
+        grid-area: transcript-container;
       }
 
-      .row {
-        display: flex;
-        align-items: center;
+      transcript-view {
+        max-width: 600px;
+        display: block;
       }
 
-      .collection-image {
+      .collection-logo {
         object-fit: contain;
+        grid-area: collection-logo;
       }
 
       .waveform-scrubber-container {
         width: 100%;
         height: 100%;
+        grid-area: waveform-scrubber;
+      }
+
+      .search-section {
+        grid-area: search-section;
       }
     `;
   }
