@@ -49,7 +49,8 @@ export class RadioPlayer extends LitElement {
       <waveform-progress
         interactive=true
         .waveformUrl=${this.waveformUrl}
-        .percentComplete=${this.percentComplete}>
+        .percentComplete=${this.percentComplete}
+        @valuechange=${this.valueChangedFromScrub}>
       </waveform-progress>
     `;
   }
@@ -86,8 +87,8 @@ export class RadioPlayer extends LitElement {
   get scrubberBarTemplate() {
     return html`
       <scrubber-bar
-        .percentComplete=${this.percentComplete}
-        @valuechange=${this.scrubberBarValueChanged}>
+        .value=${this.percentComplete}
+        @valuechange=${this.valueChangedFromScrub}>
       </scrubber-bar>
     `;
   }
@@ -154,7 +155,7 @@ export class RadioPlayer extends LitElement {
     this.percentComplete = percent * 100;
   }
 
-  scrubberBarValueChanged(e: CustomEvent): void {
+  valueChangedFromScrub(e: CustomEvent): void {
     const percentage = e.detail.value;
     const newTime = this.duration * (percentage / 100);
     this.audioElement && this.audioElement.seekTo(newTime);
