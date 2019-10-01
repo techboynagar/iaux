@@ -126,6 +126,7 @@ export default class TranscriptView extends LitElement {
 
     const timeColorCss = css`var(--timeColor, white)`;
     const timeColumnWidthCss = css`var(--timeColumnWidth, 5rem)`;
+    const timeDisplayCss = css`var(--timeDisplay, block)`;
 
     const autoScrollButtonFontColorCss = css`var(--autoScrollButtonFontColor, black)`;
     const autoScrollButtonBackgroundColorCss = css`var(--autoScrollButtonBackgroundColor, white)`;
@@ -151,6 +152,7 @@ export default class TranscriptView extends LitElement {
         display: inline-block;
         color: ${autoScrollButtonFontColorCss};
         background-color: ${autoScrollButtonBackgroundColorCss};
+        z-index: 10;
       }
 
       .context-overlay {
@@ -172,6 +174,7 @@ export default class TranscriptView extends LitElement {
       }
 
       .time {
+        display: ${timeDisplayCss};
         flex: 0 0 ${timeColumnWidthCss};
         color: ${timeColorCss};
         position: relative;

@@ -196,11 +196,11 @@ export class RadioPlayer extends LitElement {
             "search-section search-section"
             "transcript-container transcript-container";
         }
-        .collection-logo {
-          width: 192px;
-        }
         .date {
           text-align: left;
+        }
+        transcript-view {
+          --timeDisplay: none;
         }
       }
 
@@ -216,6 +216,9 @@ export class RadioPlayer extends LitElement {
         .title-date {
           display: flex;
           justify-content: space-between;
+        }
+        transcript-view {
+          --timeDisplay: block;
         }
       }
 
