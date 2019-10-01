@@ -11,10 +11,11 @@ import {
 import './transcript-entry';
 import './duration-formatter';
 import TranscriptEntryConfig from './models/transcript-entry-config';
+import TranscriptConfig from './models/transcript-config';
 
 @customElement('transcript-view')
 export default class TranscriptView extends LitElement {
-  @property({ type: [TranscriptEntryConfig] }) entries: TranscriptEntryConfig[] = [];
+  @property({ type: TranscriptConfig }) config: TranscriptConfig | undefined = undefined;
 
   @property({ type: Number }) currentTime = 0;
 
@@ -34,9 +35,9 @@ export default class TranscriptView extends LitElement {
     | TranscriptEntryConfig
     | undefined;
 
-  private scrollTimerDelay = 15000;
+  private scrollTimerDelay: number = 15000;
 
-  private scrollResumeTimerId = -1;
+  private scrollResumeTimerId: number = -1;
 
   render(): TemplateResult {
     return html`
@@ -50,7 +51,7 @@ export default class TranscriptView extends LitElement {
 
           <div class="col">
             ${this.autoScrollButtonTemplate}
-            ${(this.entries || []).map((entry: TranscriptEntryConfig) =>
+            ${(this.transcriptEntries).map((entry: TranscriptEntryConfig) =>
               this.transcriptEntryTemplate(entry),
             )}
           </div>
@@ -112,7 +113,11 @@ export default class TranscriptView extends LitElement {
     `;
   }
 
-  get currentEntryStartTime(): number {
+  private get transcriptEntries(): TranscriptEntryConfig[] {
+    return this.config ? this.config.entries : [];
+  }
+
+  private get currentEntryStartTime(): number {
     return this.currentEntry ? this.currentEntry.start : 0;
   }
 
@@ -206,7 +211,7 @@ export default class TranscriptView extends LitElement {
   }
 
   private handleCurrentTimeChange(): void {
-    const entries = this.entries || [];
+    const entries = this.transcriptEntries;
     if (entries.length === 0) {
       return;
     }
