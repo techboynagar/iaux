@@ -33,19 +33,21 @@
     import '../lib/radio-player.js';
     import RadioPlayerConfig from '../lib/models/radio-player-config.js'
     import { AudioSource } from '@internetarchive/audio-element';
-    // import TranscriptEntryConfig from '../lib/src/models/transcript-entry-config.js';
-    // import transcript from './transcript.js';
+    import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
+    import transcript from './transcript.js';
 
-    // const convertedTranscript = transcript.map((entry) => {
-    //   return new TranscriptEntryConfig(
-    //     entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
-    // })
+    const convertedTranscript = transcript.map((entry) => {
+      return new TranscriptEntryConfig(
+        entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
+    })
 
-    // const totalTime = convertedTranscript[convertedTranscript.length - 1].end;
+    const transcriptConfig = new TranscriptConfig(convertedTranscript);
 
+    // using a remote audio sample source because the local one sets the duration to Infinity for some reason
     const audioSource = new AudioSource(
       'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
       'audio/mpeg');
+
     const config = new RadioPlayerConfig(
       'Voice of America',
       '7:00pm',
@@ -54,17 +56,11 @@
       [audioSource]
     )
 
-    // title: string,
-    // startTime: string,
-    // logoUrl: string,
-    // waveformUrl: string,
-    // audioSources: AudioSource[]
-
-
     render(
       html`
         <radio-player
           .config=${config}
+          .transcriptConfig=${transcriptConfig}
           >
         </radio-player>
       `,

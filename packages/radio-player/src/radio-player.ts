@@ -1,6 +1,7 @@
 import { LitElement, html, css, customElement, property, CSSResult, TemplateResult } from 'lit-element';
 import RadioPlayerConfig from './models/radio-player-config';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
+import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
 import '@internetarchive/audio-element';
 import '@internetarchive/waveform-progress';
 import '@internetarchive/playback-controls';
@@ -9,8 +10,8 @@ import '@internetarchive/scrubber-bar';
 @customElement('radio-player')
 export class RadioPlayer extends LitElement {
   @property({ type: RadioPlayerConfig }) config: RadioPlayerConfig | undefined = undefined;
-  // @property({ type: TranscriptConfig }) transcriptConfig: TranscriptConfig | undefined = undefined;
-  // @property({ type: TranscriptEntryConfig }) currentTranscriptEntry = undefined;
+  @property({ type: TranscriptConfig }) transcriptConfig: TranscriptConfig | undefined = undefined;
+  @property({ type: Array }) currentTranscriptEntry: TranscriptEntryConfig | undefined = undefined;
   @property({ type: Number }) percentComplete = 0;
   @property({ type: Boolean }) isPlaying = false;
   @property({ type: Number }) currentTime = 0;
@@ -105,19 +106,19 @@ export class RadioPlayer extends LitElement {
   }
 
   get transcriptViewTemplate(): TemplateResult {
-    return html``;
-    // return html`
-    //   <transcript-view
-    //     .entries=${this.transcriptEntries}
-    //     .currentEntry=${this.currentTranscriptEntry}
-    //     @transcriptEntrySelected=${this.transcriptEntrySelected}>
-    //   </transcript-view>
-    // `;
+    // return html``;
+    return html`
+      <transcript-view
+        .entries=${this.transcriptEntries}
+        .currentTime=${this.currentTime}
+        @transcriptEntrySelected=${this.transcriptEntrySelected}>
+      </transcript-view>
+    `;
   }
 
-  // get transcriptEntries() {
-  //   return this.transcriptConfig ? this.transcriptConfig.entries : [];
-  // }
+  get transcriptEntries(): TranscriptEntryConfig[] {
+    return this.transcriptConfig ? this.transcriptConfig.entries : [];
+  }
 
   get audioElement(): AudioElement | null {
     return this.shadowRoot ? this.shadowRoot.querySelector('audio-element') as AudioElement : null;
