@@ -2,7 +2,6 @@ import { LitElement, html, css, customElement, property, CSSResult, TemplateResu
 import RadioPlayerConfig from './models/radio-player-config';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
-import '@internetarchive/audio-element';
 import '@internetarchive/waveform-progress';
 import '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
@@ -109,7 +108,7 @@ export class RadioPlayer extends LitElement {
     // return html``;
     return html`
       <transcript-view
-        .entries=${this.transcriptEntries}
+        .config=${this.transcriptConfig}
         .currentTime=${this.currentTime}
         @transcriptEntrySelected=${this.transcriptEntrySelected}>
       </transcript-view>
