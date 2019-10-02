@@ -223,7 +223,7 @@ export default class RadioPlayer extends LitElement {
       /* mobile view */
       @media (max-width: 650px) {
         main {
-          grid-template-columns: 192px 1fr;
+          grid-template-columns: 25% 1fr;
           grid-template-areas:
             'collection-logo title-date'
             'waveform-scrubber waveform-scrubber'
@@ -236,6 +236,9 @@ export default class RadioPlayer extends LitElement {
         }
         transcript-view {
           --timeDisplay: none;
+        }
+        .search-box {
+          width: 75%;
         }
       }
 
@@ -255,6 +258,9 @@ export default class RadioPlayer extends LitElement {
         }
         transcript-view {
           --timeDisplay: block;
+        }
+        .search-box {
+          width: 172px;
         }
       }
 
@@ -291,8 +297,10 @@ export default class RadioPlayer extends LitElement {
       }
 
       .collection-logo {
+        width: 100%;
         object-fit: contain;
         grid-area: collection-logo;
+        align-self: center;
       }
 
       .waveform-scrubber-container {
@@ -306,7 +314,6 @@ export default class RadioPlayer extends LitElement {
       }
 
       .search-box {
-        width: 172px;
         margin: auto;
         display: block;
         border-radius: 10px;
