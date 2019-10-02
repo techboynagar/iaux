@@ -1,35 +1,48 @@
-import { LitElement, html, css, customElement, property, CSSResult, TemplateResult } from 'lit-element';
-import RadioPlayerConfig from './models/radio-player-config';
+import {
+  LitElement,
+  html,
+  css,
+  customElement,
+  property,
+  CSSResult,
+  TemplateResult,
+} from 'lit-element';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
+import RadioPlayerConfig from './models/radio-player-config';
 import '@internetarchive/waveform-progress';
 import '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
 
 @customElement('radio-player')
-export class RadioPlayer extends LitElement {
+export default class RadioPlayer extends LitElement {
   @property({ type: RadioPlayerConfig }) config: RadioPlayerConfig | undefined = undefined;
+
   @property({ type: TranscriptConfig }) transcriptConfig: TranscriptConfig | undefined = undefined;
+
   @property({ type: Number }) percentComplete = 0;
+
   @property({ type: Boolean }) isPlaying = false;
+
   @property({ type: Number }) currentTime = 0;
+
   @property({ type: Number }) duration = 0;
+
   @property({ type: String }) collectionImgUrl = '';
+
   @property({ type: Number }) playbackRate = 1;
+
+  @property({ type: String }) searchTerm = '';
 
   render(): TemplateResult {
     return html`
       ${this.audioElementTemplate}
       <main>
-        ${this.titleDateTemplate}
-        ${this.collectionLogoTemplate}
-        ${this.playbackControlsTemplate}
+        ${this.titleDateTemplate} ${this.collectionLogoTemplate} ${this.playbackControlsTemplate}
         <div class="waveform-scrubber-container">
-          ${this.waveFormProgressTemplate}
-          ${this.scrubberBarTemplate}
+          ${this.waveFormProgressTemplate} ${this.scrubberBarTemplate}
         </div>
-        ${this.searchSectionTemplate}
-        ${this.transcriptViewTemplate}
+        ${this.searchSectionTemplate} ${this.transcriptViewTemplate}
       </main>
     `;
   }
@@ -38,11 +51,11 @@ export class RadioPlayer extends LitElement {
     return html`
       <div class="title-date">
         <div class="title">
-          Voice of America
+          ${this.config ? this.config.title : ''}
         </div>
 
         <div class="date">
-          2019-09-12 17:00:00
+          ${this.config ? this.config.date : ''}
         </div>
       </div>
     `;
@@ -61,10 +74,11 @@ export class RadioPlayer extends LitElement {
   get waveFormProgressTemplate(): TemplateResult {
     return html`
       <waveform-progress
-        interactive=true
+        interactive="true"
         .waveformUrl=${this.waveformUrl}
         .percentComplete=${this.percentComplete}
-        @valuechange=${this.valueChangedFromScrub}>
+        @valuechange=${this.valueChangedFromScrub}
+      >
       </waveform-progress>
     `;
   }
@@ -79,7 +93,8 @@ export class RadioPlayer extends LitElement {
         .sources=${this.audioSources}
         .playbackRate=${this.playbackRate}
         @timeupdate=${this.handleTimeChange}
-        @durationchange=${this.handleDurationChange}>
+        @durationchange=${this.handleDurationChange}
+      >
       </audio-element>
     `;
   }
@@ -93,16 +108,15 @@ export class RadioPlayer extends LitElement {
       <playback-controls
         @back-button-pressed=${this.backButtonHandler}
         @play-pause-button-pressed=${this.playPauseButtonHandler}
-        @forward-button-pressed=${this.forwardButtonHandler}>
+        @forward-button-pressed=${this.forwardButtonHandler}
+      >
       </playback-controls>
     `;
   }
 
   get scrubberBarTemplate(): TemplateResult {
     return html`
-      <scrubber-bar
-        .value=${this.percentComplete}
-        @valuechange=${this.valueChangedFromScrub}>
+      <scrubber-bar .value=${this.percentComplete} @valuechange=${this.valueChangedFromScrub}>
       </scrubber-bar>
     `;
   }
@@ -113,7 +127,8 @@ export class RadioPlayer extends LitElement {
         <transcript-view
           .config=${this.transcriptConfig}
           .currentTime=${this.currentTime}
-          @transcriptEntrySelected=${this.transcriptEntrySelected}>
+          @transcriptEntrySelected=${this.transcriptEntrySelected}
+        >
         </transcript-view>
       </div>
     `;
@@ -122,7 +137,7 @@ export class RadioPlayer extends LitElement {
   get searchSectionTemplate(): TemplateResult {
     return html`
       <div class="search-section">
-        <input type="text" class="search-box" />
+        <input type="text" class="search-box" placeholder="Search" value="${this.searchTerm}" />
       </div>
     `;
   }
@@ -132,7 +147,9 @@ export class RadioPlayer extends LitElement {
   }
 
   get audioElement(): AudioElement | null {
-    return this.shadowRoot ? this.shadowRoot.querySelector('audio-element') as AudioElement : null;
+    return this.shadowRoot
+      ? (this.shadowRoot.querySelector('audio-element') as AudioElement)
+      : null;
   }
 
   changePlaybackRate(e: Event): void {
@@ -141,20 +158,27 @@ export class RadioPlayer extends LitElement {
   }
 
   backButtonHandler(): void {
-    this.audioElement && this.audioElement.seekBy(-10);
+    if (this.audioElement) {
+      this.audioElement.seekBy(-10);
+    }
   }
 
   playPauseButtonHandler(): void {
     this.isPlaying = !this.isPlaying;
+    if (!this.audioElement) {
+      return;
+    }
     if (this.isPlaying) {
-      this.audioElement && this.audioElement.play();
+      this.audioElement.play();
     } else {
-      this.audioElement && this.audioElement.pause();
+      this.audioElement.pause();
     }
   }
 
   forwardButtonHandler(): void {
-    this.audioElement && this.audioElement.seekBy(10);
+    if (this.audioElement) {
+      this.audioElement.seekBy(10);
+    }
   }
 
   handleDurationChange(e: CustomEvent): void {
@@ -163,23 +187,33 @@ export class RadioPlayer extends LitElement {
 
   handleTimeChange(e: CustomEvent): void {
     this.currentTime = e.detail.currentTime;
-    const percent = this.currentTime / this.duration
+    const percent = this.currentTime / this.duration;
     this.percentComplete = percent * 100;
   }
 
   valueChangedFromScrub(e: CustomEvent): void {
     const percentage = e.detail.value;
     const newTime = this.duration * (percentage / 100);
-    this.audioElement && this.audioElement.seekTo(newTime);
+    if (this.audioElement) {
+      this.audioElement.seekTo(newTime);
+    }
     this.percentComplete = percentage;
   }
 
   transcriptEntrySelected(e: CustomEvent): void {
     const newTime = e.detail.entry.startTime;
-    this.audioElement && this.audioElement.seekTo(newTime);
+    if (this.audioElement) {
+      this.audioElement.seekTo(newTime);
+    }
   }
 
   static get styles(): CSSResult {
+    const titleColorCss = css`var(--titleColor, white)`;
+    const titleFontCss = css`var(--titleFont, 2em sans-serif)`;
+
+    const dateColorCss = css`var(--dateColor, white)`;
+    const dateFontCss = css`var(--dateFont, 1.5em sans-serif)`;
+
     return css`
       main {
         display: grid;
@@ -187,14 +221,15 @@ export class RadioPlayer extends LitElement {
       }
 
       /* mobile view */
-      @media (max-width: 30em) {
+      @media (max-width: 650px) {
         main {
+          grid-template-columns: 192px 1fr;
           grid-template-areas:
-            "collection-logo title-date"
-            "waveform-scrubber waveform-scrubber"
-            "playback-controls playback-controls"
-            "search-section search-section"
-            "transcript-container transcript-container";
+            'collection-logo title-date'
+            'waveform-scrubber waveform-scrubber'
+            'playback-controls playback-controls'
+            'search-section search-section'
+            'transcript-container transcript-container';
         }
         .date {
           text-align: left;
@@ -205,17 +240,18 @@ export class RadioPlayer extends LitElement {
       }
 
       /* wide view */
-      @media (min-width: 30em) {
+      @media (min-width: 650px) {
         main {
           grid-template-columns: 192px 200px 1fr;
           grid-template-areas:
-            "title-date title-date title-date"
-            "collection-logo playback-controls waveform-scrubber"
-            "search-section transcript-container transcript-container";
+            'title-date title-date title-date'
+            'collection-logo playback-controls waveform-scrubber'
+            'search-section transcript-container transcript-container';
         }
         .title-date {
           display: flex;
           justify-content: space-between;
+          align-items: baseline;
         }
         transcript-view {
           --timeDisplay: block;
@@ -226,9 +262,23 @@ export class RadioPlayer extends LitElement {
         grid-area: title-date;
       }
 
+      .title {
+        color: ${titleColorCss};
+        font: ${titleFontCss};
+      }
+
+      .date {
+        color: ${dateColorCss};
+        font: ${dateFontCss};
+      }
+
       waveform-progress {
         width: 100%;
         height: 3rem;
+      }
+
+      playback-controls {
+        grid-area: playback-controls;
       }
 
       .transcript-container {
@@ -253,6 +303,15 @@ export class RadioPlayer extends LitElement {
 
       .search-section {
         grid-area: search-section;
+      }
+
+      .search-box {
+        width: 172px;
+        margin: auto;
+        display: block;
+        border-radius: 10px;
+        border: 0;
+        padding: 5px 10px;
       }
     `;
   }

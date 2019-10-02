@@ -126,7 +126,7 @@ export default class TranscriptView extends LitElement {
     const transcriptHeightCss = css`var(--transcriptHeight, 200px)`;
 
     const timeColorCss = css`var(--timeColor, white)`;
-    const timeColumnWidthCss = css`var(--timeColumnWidth, 5rem)`;
+    const timeColumnWidthCss = css`var(--timeColumnWidth, 3rem)`;
     const timeDisplayCss = css`var(--timeDisplay, block)`;
 
     const autoScrollButtonFontColorCss = css`var(--autoScrollButtonFontColor, black)`;
