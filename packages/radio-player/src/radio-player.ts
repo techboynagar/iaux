@@ -20,19 +20,17 @@ export default class RadioPlayer extends LitElement {
 
   @property({ type: TranscriptConfig }) transcriptConfig: TranscriptConfig | undefined = undefined;
 
-  @property({ type: Number }) percentComplete = 0;
-
-  @property({ type: Boolean }) isPlaying = false;
-
   @property({ type: Number }) currentTime = 0;
 
-  @property({ type: Number }) duration = 0;
+  @property({ type: String }) private searchTerm = '';
 
-  @property({ type: String }) collectionImgUrl = '';
+  @property({ type: Number }) private percentComplete = 0;
 
-  @property({ type: Number }) playbackRate = 1;
+  @property({ type: Boolean }) private isPlaying = false;
 
-  @property({ type: String }) searchTerm = '';
+  @property({ type: Number }) private duration = 0;
+
+  @property({ type: Number }) private playbackRate = 1;
 
   render(): TemplateResult {
     return html`
@@ -47,7 +45,7 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get titleDateTemplate(): TemplateResult {
+  private get titleDateTemplate(): TemplateResult {
     return html`
       <div class="title-date">
         <div class="title">
@@ -61,17 +59,17 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get collectionLogoTemplate(): TemplateResult {
+  private get collectionLogoTemplate(): TemplateResult {
     return html`
       <img class="collection-logo" src=${this.logoUrl} />
     `;
   }
 
-  get logoUrl(): string {
+  private get logoUrl(): string {
     return this.config ? this.config.logoUrl : '';
   }
 
-  get waveFormProgressTemplate(): TemplateResult {
+  private get waveFormProgressTemplate(): TemplateResult {
     return html`
       <waveform-progress
         interactive="true"
@@ -83,11 +81,11 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get waveformUrl(): string {
+  private get waveformUrl(): string {
     return this.config ? this.config.waveformUrl : '';
   }
 
-  get audioElementTemplate(): TemplateResult {
+  private get audioElementTemplate(): TemplateResult {
     return html`
       <audio-element
         .sources=${this.audioSources}
@@ -99,11 +97,11 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get audioSources(): AudioSource[] {
+  private get audioSources(): AudioSource[] {
     return this.config ? this.config.audioSources : [];
   }
 
-  get playbackControlsTemplate(): TemplateResult {
+  private get playbackControlsTemplate(): TemplateResult {
     return html`
       <playback-controls
         @back-button-pressed=${this.backButtonHandler}
@@ -114,14 +112,14 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get scrubberBarTemplate(): TemplateResult {
+  private get scrubberBarTemplate(): TemplateResult {
     return html`
       <scrubber-bar .value=${this.percentComplete} @valuechange=${this.valueChangedFromScrub}>
       </scrubber-bar>
     `;
   }
 
-  get transcriptViewTemplate(): TemplateResult {
+  private get transcriptViewTemplate(): TemplateResult {
     return html`
       <div class="transcript-container">
         <transcript-view
@@ -134,7 +132,7 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get searchSectionTemplate(): TemplateResult {
+  private get searchSectionTemplate(): TemplateResult {
     return html`
       <div class="search-section">
         <input type="text" class="search-box" placeholder="Search" value="${this.searchTerm}" />
@@ -142,28 +140,28 @@ export default class RadioPlayer extends LitElement {
     `;
   }
 
-  get transcriptEntries(): TranscriptEntryConfig[] {
+  private get transcriptEntries(): TranscriptEntryConfig[] {
     return this.transcriptConfig ? this.transcriptConfig.entries : [];
   }
 
-  get audioElement(): AudioElement | null {
+  private get audioElement(): AudioElement | null {
     return this.shadowRoot
       ? (this.shadowRoot.querySelector('audio-element') as AudioElement)
       : null;
   }
 
-  changePlaybackRate(e: Event): void {
+  private changePlaybackRate(e: Event): void {
     const target = e.target as HTMLFormElement;
     this.playbackRate = target.value;
   }
 
-  backButtonHandler(): void {
+  private backButtonHandler(): void {
     if (this.audioElement) {
       this.audioElement.seekBy(-10);
     }
   }
 
-  playPauseButtonHandler(): void {
+  private playPauseButtonHandler(): void {
     this.isPlaying = !this.isPlaying;
     if (!this.audioElement) {
       return;
@@ -175,23 +173,23 @@ export default class RadioPlayer extends LitElement {
     }
   }
 
-  forwardButtonHandler(): void {
+  private forwardButtonHandler(): void {
     if (this.audioElement) {
       this.audioElement.seekBy(10);
     }
   }
 
-  handleDurationChange(e: CustomEvent): void {
+  private handleDurationChange(e: CustomEvent): void {
     this.duration = e.detail.duration;
   }
 
-  handleTimeChange(e: CustomEvent): void {
+  private handleTimeChange(e: CustomEvent): void {
     this.currentTime = e.detail.currentTime;
     const percent = this.currentTime / this.duration;
     this.percentComplete = percent * 100;
   }
 
-  valueChangedFromScrub(e: CustomEvent): void {
+  private valueChangedFromScrub(e: CustomEvent): void {
     const percentage = e.detail.value;
     const newTime = this.duration * (percentage / 100);
     if (this.audioElement) {
@@ -200,7 +198,7 @@ export default class RadioPlayer extends LitElement {
     this.percentComplete = percentage;
   }
 
-  transcriptEntrySelected(e: CustomEvent): void {
+  private transcriptEntrySelected(e: CustomEvent): void {
     const newTime = e.detail.entry.startTime;
     if (this.audioElement) {
       this.audioElement.seekTo(newTime);
