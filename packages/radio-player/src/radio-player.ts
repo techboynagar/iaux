@@ -10,6 +10,7 @@ import {
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
 import RadioPlayerConfig from './models/radio-player-config';
+import './search-bar/search-bar';
 import '@internetarchive/waveform-progress';
 import '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
@@ -135,7 +136,7 @@ export default class RadioPlayer extends LitElement {
   private get searchSectionTemplate(): TemplateResult {
     return html`
       <div class="search-section">
-        <input type="text" class="search-box" placeholder="Search" value="${this.searchTerm}" />
+        <search-bar searchTerm=${this.searchTerm}> </search-bar>
       </div>
     `;
   }
@@ -235,7 +236,7 @@ export default class RadioPlayer extends LitElement {
         transcript-view {
           --timeDisplay: none;
         }
-        .search-box {
+        search-bar {
           width: 75%;
         }
       }
@@ -243,7 +244,7 @@ export default class RadioPlayer extends LitElement {
       /* wide view */
       @media (min-width: 650px) {
         main {
-          grid-template-columns: 192px 200px 1fr;
+          grid-template-columns: 192px 175px 1fr;
           grid-template-areas:
             'title-date title-date title-date'
             'collection-logo playback-controls waveform-scrubber'
@@ -256,9 +257,6 @@ export default class RadioPlayer extends LitElement {
         }
         transcript-view {
           --timeDisplay: block;
-        }
-        .search-box {
-          width: 172px;
         }
       }
 
@@ -311,12 +309,9 @@ export default class RadioPlayer extends LitElement {
         grid-area: search-section;
       }
 
-      .search-box {
-        margin: auto;
+      search-bar {
         display: block;
-        border-radius: 10px;
-        border: 0;
-        padding: 5px 10px;
+        margin: auto;
       }
     `;
   }
