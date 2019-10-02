@@ -73,7 +73,7 @@ export default class TranscriptView extends LitElement {
 
   private get timeDisplayTemplate(): TemplateResult {
     return html`
-      <div class="time-display" style="top: ${this.timeScrollTop}px; display: ${this.timeDisplay}">
+      <div class="time-display" style="top: ${this.timeScrollTop}px">
         <duration-formatter .seconds=${this.currentEntryStartTime}> </duration-formatter>
       </div>
     `;
@@ -89,6 +89,7 @@ export default class TranscriptView extends LitElement {
         ?isSelected=${selected}
         ?isActive=${active}
         data-search-result-index=${entry.searchMatchIndex}
+        data-identifier=${entry.id}
         @userSelected=${this.transcriptEntrySelected}
       >
       </transcript-entry>
@@ -240,6 +241,50 @@ export default class TranscriptView extends LitElement {
     this.currentEntry = activeEntry;
   }
 
+  // This finds the transcript entry that is closest to a given time.
+  //
+  // If we don't have a currentEntry to work with, ie. we're in-between transcript entries or we're before the
+  // transcript starts or after it ends, we want to find the element closest to the time. This allows
+  // us to scroll to the proper location and set the current time's position.
+  //
+  // This is a somewhat heavy method since it has to check all of the entries so it's faster
+  // to rely on accessing the `currentEntry` element if you can, but this should work for any given time.
+  private entryIdentifierClosestToTime(time: number): number | null {
+    if (this.transcriptEntries.length === 0) { return null; }
+
+    const firstEntry: TranscriptEntryConfig = this.transcriptEntries[0];
+    var delta: number = Math.abs(time - firstEntry.start);
+    var closestIdentifier: number = firstEntry.id;
+
+    this.transcriptEntries.forEach((entry: TranscriptEntryConfig) => {
+      const entryDelta: number = Math.abs(time - entry.start);
+
+      // if the entryDelta is greater than the previous delta, we're moving away from `time`
+      // so we've reached the closest
+      if (entryDelta > delta) {
+        return;
+      } else {
+        closestIdentifier = entry.id;
+      }
+    });
+
+    return closestIdentifier;
+  }
+
+  private elementClosestToTime(time: number): HTMLElement | null {
+    const closestIdentifier = this.entryIdentifierClosestToTime(time);
+    if (!closestIdentifier) {
+      return null;
+    }
+    return this.elementForIdentifier(closestIdentifier);
+  }
+
+  private elementForIdentifier(identifier: number): HTMLElement | null {
+    return this.shadowRoot && this.shadowRoot.querySelector(
+      `transcript-entry[data-identifier="${identifier}"]`
+    );
+  }
+
   private didScroll(): void {
     this.autoScroll = false;
     window.clearTimeout(this.scrollResumeTimerId);
@@ -250,7 +295,7 @@ export default class TranscriptView extends LitElement {
 
   private enableAutoScroll(): void {
     this.autoScroll = true;
-    this.scrollToActiveEntry();
+    this.scrollToClosestEntry();
   }
 
   updated(changedProperties: PropertyValues): void {
@@ -261,7 +306,7 @@ export default class TranscriptView extends LitElement {
       this.scrollToSelectedSearchResult();
     }
     if (changedProperties.has('currentEntry')) {
-      this.scrollToActiveEntry();
+      this.scrollToClosestEntry();
       this.updateTimePosition();
     }
     if (changedProperties.has('autoScroll')) {
@@ -289,10 +334,6 @@ export default class TranscriptView extends LitElement {
     return selectedResult as HTMLElement;
   }
 
-  get timeDisplay(): string {
-    return this.activeTranscriptEntry ? 'block' : 'none';
-  }
-
   private handleAutoScrollChange(): void {
     const autoScrollChangedEvent = new CustomEvent('autoScrollChanged', {
       detail: { autoScroll: this.autoScroll },
@@ -302,15 +343,15 @@ export default class TranscriptView extends LitElement {
     this.dispatchEvent(autoScrollChangedEvent);
   }
 
-  private scrollToActiveEntry(): void {
+  private scrollToClosestEntry(): void {
     if (!this.autoScroll) {
       return;
     }
-    const { activeTranscriptEntry } = this;
-    if (!activeTranscriptEntry) {
+    const closestEntry: HTMLElement | null = this.activeTranscriptEntry || this.elementClosestToTime(this.currentTime);
+    if (!closestEntry) {
       return;
     }
-    this.scrollToElement(activeTranscriptEntry);
+    this.scrollToElement(closestEntry);
   }
 
   private scrollToSelectedSearchResult(): void {
@@ -349,14 +390,14 @@ export default class TranscriptView extends LitElement {
   }
 
   private updateTimePosition(): void {
-    const activeEntry = this.activeTranscriptEntry;
-    if (!activeEntry) {
+    const scrollToEntry = this.activeTranscriptEntry || this.elementClosestToTime(this.currentTime);
+    if (!scrollToEntry) {
       return;
     }
 
-    const parentNode = activeEntry.parentNode as HTMLElement;
+    const parentNode = scrollToEntry.parentNode as HTMLElement;
     const parentOffset = parentNode.getBoundingClientRect();
-    const offset = activeEntry.getBoundingClientRect().top - parentOffset.top;
+    const offset = scrollToEntry.getBoundingClientRect().top - parentOffset.top;
 
     this.timeScrollTop = offset;
   }
