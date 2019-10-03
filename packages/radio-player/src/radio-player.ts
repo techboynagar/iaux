@@ -364,13 +364,16 @@ export default class RadioPlayer extends LitElement {
 
       .desktop-search-section h2 {
         color: white;
-        margin: 0.5em;
+        margin: 0.5em 0.5em 0 0.5em;
+        font-size: 1em;
+        font-weight: normal;
       }
 
       .quick-search-container {
         max-height: 150px;
         overflow-y: scroll;
         scrollbar-width: none;
+        margin: 0 0.5em;
       }
 
       .quick-search-container::-webkit-scrollbar {

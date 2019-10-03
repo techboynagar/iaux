@@ -174,6 +174,7 @@ export default class SearchBar extends LitElement {
         max-height: 150px;
         overflow-y: scroll;
         scrollbar-width: none;
+        padding: 0 0.5em;
       }
 
       .quick-search::-webkit-scrollbar {

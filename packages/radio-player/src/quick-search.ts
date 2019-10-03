@@ -47,7 +47,7 @@ export default class QuickSearch extends LitElement {
       }
 
       ul li {
-        padding: 0.25em 1em 0.25em 1em;
+        padding: 0.25em 0 0 0;
         margin: 0;
         display: block;
       }
@@ -55,7 +55,6 @@ export default class QuickSearch extends LitElement {
       ul li a {
         color: rgb(68, 132, 202);
         text-decoration: none;
-        font-size: 1.1em;
         cursor: pointer;
       }
     `;
