@@ -40,7 +40,7 @@
     import RadioPlayerConfig from '../lib/models/radio-player-config.js'
     import { AudioSource } from '@internetarchive/audio-element';
     import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
-    import transcript from './transcript2.js';
+    import transcript from './transcript3.js';
 
     const convertedTranscript = transcript.map((entry) => {
       return new TranscriptEntryConfig(
@@ -50,8 +50,16 @@
     const transcriptConfig = new TranscriptConfig(convertedTranscript);
 
     // using a remote audio sample source because the local one sets the duration to Infinity for some reason
+    // const audioSource = new AudioSource(
+    //   'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
+    //   'audio/mpeg');
+
+    // const audioSource = new AudioSource(
+    //   'https://archive.org/download/KSOR_90_1_AM_20180130_180000/KSOR_90_1_AM_20180130_180000.mp3',
+    //   'audio/mpeg');
+
     const audioSource = new AudioSource(
-      'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
+      'https://ia803005.us.archive.org/30/items/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000.mp3',
       'audio/mpeg');
 
     const quickSearchTerms = [

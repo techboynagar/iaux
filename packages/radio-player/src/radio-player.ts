@@ -288,8 +288,8 @@ export default class RadioPlayer extends LitElement {
       return this.currentTime > zone.start && this.currentTime < zone.end;
     });
 
-    if (activeMusicZone) {
-      this.currentTime = activeMusicZone.end;
+    if (activeMusicZone && this.audioElement) {
+      this.audioElement.seekTo(activeMusicZone.end + 0.1);
     }
   }
 

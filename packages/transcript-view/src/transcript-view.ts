@@ -119,7 +119,7 @@ export default class TranscriptView extends LitElement {
   }
 
   private get currentEntryStartTime(): number {
-    return this.currentEntry ? this.currentEntry.start : 0;
+    return this.currentEntry ? this.currentEntry.start : this.currentTime;
   }
 
   static get styles(): CSSResult {
@@ -259,12 +259,13 @@ export default class TranscriptView extends LitElement {
     this.transcriptEntries.forEach((entry: TranscriptEntryConfig) => {
       const entryDelta: number = Math.abs(time - entry.start);
 
-      // if the entryDelta is greater than the previous delta, we're moving away from `time`
-      // so we've reached the closest
-      if (entryDelta > delta) {
-        return;
-      } else {
+      // if the entryDelta is less than the previous delta, we're moving closer to `time`;
+      // once the delta starts increasing, we're moving away from it so we've just passed the closest
+      if (entryDelta < delta) {
+        delta = entryDelta;
         closestIdentifier = entry.id;
+      } else {
+        return;
       }
     });
 
