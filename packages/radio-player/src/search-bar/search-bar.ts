@@ -25,10 +25,10 @@ export default class SearchBar extends LitElement {
   render(): TemplateResult {
     return html`
       <div
-        class="container ${this.isOpen ? 'is-open' : ''} ${this.showsDisclosure
-          ? 'shows-disclosure'
-          : ''}"
-      >
+        class="
+          container
+          ${this.isOpen ? 'is-open' : ''}
+          ${this.showsDisclosure ? 'shows-disclosure' : ''}">
         <div class="search-bar">
           <div class="magnifier-container endcap">
             ${MagnifyingGlass}
@@ -38,7 +38,7 @@ export default class SearchBar extends LitElement {
             class="search-input"
             placeholder="Search"
             value=${this.searchTerm}
-            @input=${this.inputChanged}
+            @input=${this.emitInputChangeEvent}
           />
           <div class="disclosure-container endcap">
             <button @click=${this.toggleDisclosure}>
@@ -57,10 +57,10 @@ export default class SearchBar extends LitElement {
     `;
   }
 
-  private inputChanged(e: InputEvent): void {
-    const inputElement = e.target as HTMLInputElement;
+  private emitInputChangeEvent(): void {
+    const value = this.searchInput && this.searchInput.value;
     const event = new CustomEvent('inputchange', {
-      detail: { value: inputElement.value },
+      detail: { value: value },
       bubbles: true,
       composed: true,
     });
@@ -69,6 +69,7 @@ export default class SearchBar extends LitElement {
 
   private doQuickSearch(e: CustomEvent): void {
     this.searchTerm = e.detail.searchTerm;
+    this.isOpen = false;
   }
 
   private toggleDisclosure(): void {
@@ -84,6 +85,7 @@ export default class SearchBar extends LitElement {
       return;
     }
     this.searchInput.value = this.searchTerm;
+    this.emitInputChangeEvent();
   }
 
   updated(changedProperties: PropertyValues): void {
