@@ -25,6 +25,9 @@
       --activeTextColor: white;
       --searchResultInactiveBorderColor: gray;
       --searchResultActiveBorderColor: green;
+
+      --trackColor: black;
+      --trackBorder: 1px solid white;
     }
   </style>
 </head>
@@ -37,7 +40,7 @@
     import RadioPlayerConfig from '../lib/models/radio-player-config.js'
     import { AudioSource } from '@internetarchive/audio-element';
     import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
-    import transcript from './transcript.js';
+    import transcript from './transcript2.js';
 
     const convertedTranscript = transcript.map((entry) => {
       return new TranscriptEntryConfig(

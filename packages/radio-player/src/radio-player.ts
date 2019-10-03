@@ -6,6 +6,7 @@ import {
   property,
   CSSResult,
   TemplateResult,
+  PropertyValues,
 } from 'lit-element';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
@@ -17,6 +18,8 @@ import '@internetarchive/scrubber-bar';
 
 import './search-bar/search-bar';
 import './quick-search';
+import MusicZone from './models/music-zone';
+import { ZoneOfSilence } from '@internetarchive/waveform-progress';
 
 @customElement('radio-player')
 export default class RadioPlayer extends LitElement {
@@ -35,6 +38,8 @@ export default class RadioPlayer extends LitElement {
   @property({ type: Number }) private duration = 0;
 
   @property({ type: Number }) private playbackRate = 1;
+
+  private musicZones: MusicZone[] = [];
 
   render(): TemplateResult {
     return html`
@@ -77,12 +82,29 @@ export default class RadioPlayer extends LitElement {
     return html`
       <waveform-progress
         interactive="true"
+        .zonesOfSilence=${this.zonesOfSilence}
         .waveformUrl=${this.waveformUrl}
         .percentComplete=${this.percentComplete}
         @valuechange=${this.valueChangedFromScrub}
       >
       </waveform-progress>
     `;
+  }
+
+  private get zonesOfSilence(): ZoneOfSilence[] {
+    if (this.duration === 0) { return []; }
+
+    const musicEntries: TranscriptEntryConfig[] = this.transcriptEntries.filter((entry: TranscriptEntryConfig) => {
+      return entry.isMusic === true;
+    })
+
+    const zonesOfSilence: ZoneOfSilence[] = musicEntries.map((entry: TranscriptEntryConfig) => {
+      const startPercent: number = (entry.start / this.duration) * 100;
+      const endPercent: number = (entry.end / this.duration) * 100;
+      return new ZoneOfSilence(startPercent, endPercent);
+    });
+
+    return zonesOfSilence;
   }
 
   private get waveformUrl(): string {
@@ -249,12 +271,44 @@ export default class RadioPlayer extends LitElement {
     }
   }
 
+  private updateMusicZones(): void {
+    const musicEntries: TranscriptEntryConfig[] = this.transcriptEntries.filter((entry: TranscriptEntryConfig) => {
+      return entry.isMusic === true;
+    })
+
+    const musicZones: MusicZone[] = musicEntries.map((entry: TranscriptEntryConfig) => {
+      return new MusicZone(entry.start, entry.end);
+    });
+
+    this.musicZones = musicZones;
+  }
+
+  private checkForMusicZone(): void {
+    const activeMusicZone: MusicZone | undefined = this.musicZones.find((zone: MusicZone) => {
+      return this.currentTime > zone.start && this.currentTime < zone.end;
+    });
+
+    if (activeMusicZone) {
+      this.currentTime = activeMusicZone.end;
+    }
+  }
+
+  updated(changedProperties: PropertyValues): void {
+    if (changedProperties.has('transcriptConfig')) {
+      this.updateMusicZones();
+    }
+
+    if (changedProperties.has('currentTime')) {
+      this.checkForMusicZone();
+    }
+  }
+
   static get styles(): CSSResult {
     const titleColorCss = css`var(--titleColor, white)`;
-    const titleFontCss = css`var(--titleFont, 2em sans-serif)`;
+    const titleFontCss = css`var(--titleFont, 1.5em sans-serif)`;
 
     const dateColorCss = css`var(--dateColor, white)`;
-    const dateFontCss = css`var(--dateFont, 1.5em sans-serif)`;
+    const dateFontCss = css`var(--dateFont, 1em sans-serif)`;
 
     return css`
       main {
