@@ -10,10 +10,13 @@ import {
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
 import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
 import RadioPlayerConfig from './models/radio-player-config';
-import './search-bar/search-bar';
+
 import '@internetarchive/waveform-progress';
 import '@internetarchive/playback-controls';
 import '@internetarchive/scrubber-bar';
+
+import './search-bar/search-bar';
+import './quick-search';
 
 @customElement('radio-player')
 export default class RadioPlayer extends LitElement {
@@ -134,11 +137,51 @@ export default class RadioPlayer extends LitElement {
   }
 
   private get searchSectionTemplate(): TemplateResult {
+    // The mobile and desktop search sections work similarly, but the mobile version has
+    // a dropdown area on it and the desktop version does not.
+    // This is a case where the functionality is different enough to have two instances
+    // of it instead of one and just show and hide them based on the media query.
     return html`
-      <div class="search-section">
-        <search-bar searchTerm=${this.searchTerm}> </search-bar>
+      <div class="desktop-search-section">
+        <search-bar
+          searchTerm=${this.searchTerm}
+          .quickSearches=${this.quickSearches}
+          @inputchange=${this.updateSearchTerm}
+        >
+        </search-bar>
+
+        <h2>Quick Search</h2>
+        <div class="quick-search-container">
+          <quick-search
+            .quickSearches=${this.quickSearches}
+            @searchTermSelected=${this.doQuickSearch}
+          >
+          </quick-search>
+        </div>
+      </div>
+
+      <div class="mobile-search-section">
+        <search-bar
+          searchTerm=${this.searchTerm}
+          .quickSearches=${this.quickSearches}
+          showsDisclosure="true"
+          @inputchange=${this.updateSearchTerm}
+        >
+        </search-bar>
       </div>
     `;
+  }
+
+  private get quickSearches(): string[] {
+    return this.config ? this.config.quickSearches : [];
+  }
+
+  private updateSearchTerm(e: CustomEvent): void {
+    this.searchTerm = e.detail.value;
+  }
+
+  private doQuickSearch(e: CustomEvent): void {
+    this.searchTerm = e.detail.searchTerm;
   }
 
   private get transcriptEntries(): TranscriptEntryConfig[] {
@@ -227,7 +270,7 @@ export default class RadioPlayer extends LitElement {
             'collection-logo title-date'
             'waveform-scrubber waveform-scrubber'
             'playback-controls playback-controls'
-            'search-section search-section'
+            'mobile-search-section mobile-search-section'
             'transcript-container transcript-container';
         }
         .date {
@@ -239,6 +282,9 @@ export default class RadioPlayer extends LitElement {
         search-bar {
           width: 75%;
         }
+        .desktop-search-section {
+          display: none;
+        }
       }
 
       /* wide view */
@@ -248,7 +294,7 @@ export default class RadioPlayer extends LitElement {
           grid-template-areas:
             'title-date title-date title-date'
             'collection-logo playback-controls waveform-scrubber'
-            'search-section transcript-container transcript-container';
+            'desktop-search-section transcript-container transcript-container';
         }
         .title-date {
           display: flex;
@@ -257,6 +303,9 @@ export default class RadioPlayer extends LitElement {
         }
         transcript-view {
           --timeDisplay: block;
+        }
+        .mobile-search-section {
+          display: none;
         }
       }
 
@@ -305,8 +354,27 @@ export default class RadioPlayer extends LitElement {
         grid-area: waveform-scrubber;
       }
 
-      .search-section {
-        grid-area: search-section;
+      .mobile-search-section {
+        grid-area: mobile-search-section;
+      }
+
+      .desktop-search-section {
+        grid-area: desktop-search-section;
+      }
+
+      .desktop-search-section h2 {
+        color: white;
+        margin: 0.5em;
+      }
+
+      .quick-search-container {
+        max-height: 150px;
+        overflow-y: scroll;
+        scrollbar-width: none;
+      }
+
+      .quick-search-container::-webkit-scrollbar {
+        display: none;
       }
 
       search-bar {

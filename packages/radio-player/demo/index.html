@@ -7,6 +7,7 @@
   <style>
     body {
       background: #000;
+      font-family: sans-serif;
     }
 
     radio-player {
@@ -50,12 +51,42 @@
       'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
       'audio/mpeg');
 
+    const quickSearchTerms = [
+      'International relations',
+      'International law',
+      'Birth control',
+      'Sports terminology',
+      'Training',
+      'Human rights',
+      'Economics',
+      'Law',
+      'Geography terminology',
+      'IOS software',
+      'American football terminology',
+      'Android (operating system) software',
+      "Women's National Basketball Association teams",
+      'Olympic medals',
+      'Gold',
+      'Orders, decorations, and medals',
+      'Connecticut',
+      'Abuse',
+      'Personhood',
+      'Culture',
+      'Google',
+      'BlackBerry software',
+      'Java platform software',
+      'Capitals in Asia',
+      'Cigarettes',
+      'Tobacco'
+    ]
+
     const config = new RadioPlayerConfig(
       'Voice of America',
       '7:00pm',
       './logo.jpg',
       './waveform.png',
-      [audioSource]
+      [audioSource],
+      quickSearchTerms
     )
 
     render(

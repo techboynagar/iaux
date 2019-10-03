@@ -6,6 +6,7 @@ import {
   property,
   CSSResult,
   TemplateResult,
+  PropertyValues,
 } from 'lit-element';
 
 import MagnifyingGlass from './assets/img/magnifying-glass';
@@ -13,47 +14,32 @@ import DisclosureTriangle from './assets/img/disclosure';
 
 @customElement('search-bar')
 export default class SearchBar extends LitElement {
-  @property({ type: Boolean }) isOpen = true;
+  @property({ type: Boolean }) isOpen = false;
+
+  @property({ type: Boolean }) showsDisclosure = false;
 
   @property({ type: String }) searchTerm = '';
 
-  @property({ type: Array }) quickSearches: string[] = [
-    'International relations',
-    'International law',
-    'Birth control',
-    'Sports terminology',
-    'Training',
-    'Human rights',
-    'Economics',
-    'Law',
-    'Geography terminology',
-    'IOS software',
-    'American football terminology',
-    'Android (operating system) software',
-    "Women's National Basketball Association teams",
-    'Olympic medals',
-    'Gold',
-    'Orders, decorations, and medals',
-    'Connecticut',
-    'Abuse',
-    'Personhood',
-    'Culture',
-    'Google',
-    'BlackBerry software',
-    'Java platform software',
-    'Capitals in Asia',
-    'Cigarettes',
-    'Tobacco',
-  ];
+  @property({ type: Array }) quickSearches: string[] = [];
 
   render(): TemplateResult {
     return html`
-      <div class="container ${this.isOpen ? 'is-open' : ''}">
+      <div
+        class="container ${this.isOpen ? 'is-open' : ''} ${this.showsDisclosure
+          ? 'shows-disclosure'
+          : ''}"
+      >
         <div class="search-bar">
           <div class="magnifier-container endcap">
             ${MagnifyingGlass}
           </div>
-          <input type="text" class="search-box" placeholder="Search" value=${this.searchTerm} />
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search"
+            value=${this.searchTerm}
+            @input=${this.inputChanged}
+          />
           <div class="disclosure-container endcap">
             <button @click=${this.toggleDisclosure}>
               ${DisclosureTriangle}
@@ -61,34 +47,54 @@ export default class SearchBar extends LitElement {
           </div>
         </div>
         <div class="quick-search">
-          <ul>
-            ${this.quickSearches.map(
-              (quickSearch: string) => html`
-                <li>
-                  <a @click=${this.doQuickSearch} data-search-term=${quickSearch}>${quickSearch}</a>
-                </li>
-              `,
-            )}
-          </ul>
+          <quick-search
+            .quickSearches=${this.quickSearches}
+            @searchTermSelected=${this.doQuickSearch}
+          >
+          </quick-search>
         </div>
       </div>
     `;
   }
 
-  private doQuickSearch(e: Event): void {
-    const { searchTerm } = (e.target as HTMLElement).dataset;
-    if (searchTerm) {
-      this.searchTerm = searchTerm;
-    }
+  private inputChanged(e: InputEvent): void {
+    const inputElement = e.target as HTMLInputElement;
+    const event = new CustomEvent('inputchange', {
+      detail: { value: inputElement.value },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
+
+  private doQuickSearch(e: CustomEvent): void {
+    this.searchTerm = e.detail.searchTerm;
   }
 
   private toggleDisclosure(): void {
     this.isOpen = !this.isOpen;
   }
 
-  static get styles(): CSSResult {
-    // const searchWidthCss = css`var(--titleFont, 2em sans-serif)`;
+  private get searchInput(): HTMLInputElement | null {
+    return this.shadowRoot && (this.shadowRoot.querySelector('.search-input') as HTMLInputElement);
+  }
 
+  private updateSearchChange(): void {
+    if (!this.searchInput) {
+      return;
+    }
+    this.searchInput.value = this.searchTerm;
+  }
+
+  updated(changedProperties: PropertyValues): void {
+    if (changedProperties.has('searchTerm')) {
+      // for some reason, the input will not update automatically if the user has interacted with it
+      // so this just sets it manually
+      this.updateSearchChange();
+    }
+  }
+
+  static get styles(): CSSResult {
     return css`
       .container {
         position: relative;
@@ -114,11 +120,15 @@ export default class SearchBar extends LitElement {
         border-radius: 1em 0 0 1em;
         border-right: 0;
       }
-      .container.is-open .magnifier-container {
+      .container.is-open.shows-disclosure .magnifier-container {
         border-radius: 1em 0 0 0;
       }
       .disclosure-container {
         border-radius: 0 1em 1em 0;
+        display: none;
+      }
+      .container.shows-disclosure .disclosure-container {
+        display: flex;
       }
       .container.is-open .disclosure-container {
         border-radius: 0 1em 0 0;
@@ -128,12 +138,12 @@ export default class SearchBar extends LitElement {
         background: none;
       }
 
-      .search-box {
+      .search-input {
         height: 2em;
         border-top: 1px solid white;
         border-bottom: 1px solid white;
         border-left: 0;
-        border-right: 0;
+        border-radius: 0 1rem 1rem 0;
         background-color: black;
         color: white;
         padding: 5px 0;
@@ -141,7 +151,12 @@ export default class SearchBar extends LitElement {
         flex: 1 1 auto;
       }
 
-      .search-box:focus {
+      .container.shows-disclosure .search-input {
+        border-right: 0;
+        border-radius: 0;
+      }
+
+      .search-input:focus {
         outline: none;
       }
 
@@ -163,29 +178,10 @@ export default class SearchBar extends LitElement {
         display: none;
       }
 
-      .container.is-open .quick-search {
+      .container.is-open.shows-disclosure .quick-search {
         border: 1px solid white;
         border-top: 0;
         display: block;
-      }
-
-      .quick-search ul {
-        padding: 0;
-        margin: 0;
-        list-style: none;
-      }
-
-      .quick-search ul li {
-        padding: 0.5em 2em 0.5em 2em;
-        margin: 0;
-        display: block;
-      }
-
-      .quick-search ul li a {
-        color: rgb(68, 132, 202);
-        text-decoration: none;
-        font-size: 1.1em;
-        cursor: pointer;
       }
     `;
   }
