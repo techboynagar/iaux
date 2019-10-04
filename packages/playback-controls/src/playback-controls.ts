@@ -150,8 +150,6 @@ export default class PlaybackControls extends LitElement {
 
       #play-pause-btn {
         border-radius: 50%;
-        /* width: 5rem;
-        height: 5rem; */
         max-height: 5rem;
         max-width: 5rem;
         border: none;
