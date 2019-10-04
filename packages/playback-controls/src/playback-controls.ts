@@ -17,7 +17,7 @@ export default class PlaybackControls extends LitElement {
 
   @property({ type: Number }) playbackSpeed = 1;
 
-  @property({ type: Number }) volume = 100;
+  @property({ type: Number }) volume = 1;
 
   render(): TemplateResult {
     return html`
@@ -48,7 +48,7 @@ export default class PlaybackControls extends LitElement {
             </button>
           </div>
           <div class="vertical-button-value">
-            ${this.volume}%
+            ${this.volume * 100}%
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default class PlaybackControls extends LitElement {
     if (this.volume === 0) {
       image = volumeMuteImage;
     }
-    if (this.volume === 100) {
+    if (this.volume === 1) {
       image = volumeFullImage;
     }
     return image
@@ -85,14 +85,28 @@ export default class PlaybackControls extends LitElement {
     } else {
       this.playbackSpeed += 0.25;
     }
+
+    const event = new CustomEvent('playbackSpeedChange', {
+      detail: { playbackSpeed: this.playbackSpeed },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
   }
 
   handleVolumeChange() {
-    if (this.volume === 100) {
+    if (this.volume === 1) {
       this.volume = 0;
     } else {
-      this.volume += 25;
+      this.volume += 0.25;
     }
+
+    const event = new CustomEvent('volumeChange', {
+      detail: { playbackSpeed: this.volume },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
   }
 
   handleBackButton() {
