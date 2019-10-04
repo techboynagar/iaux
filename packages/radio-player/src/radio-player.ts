@@ -346,7 +346,7 @@ export default class RadioPlayer extends LitElement {
       }
 
       /* mobile view */
-      @media (max-width: 650px) {
+      @media (max-width: 770px) {
         main {
           grid-template-columns: 25% 1fr;
           grid-template-areas:
@@ -375,13 +375,13 @@ export default class RadioPlayer extends LitElement {
       }
 
       /* wide view */
-      @media (min-width: 650px) {
+      @media (min-width: 770px) {
         main {
-          grid-template-columns: 192px 200px 1fr;
+          grid-template-columns: 192px 3rem 200px 1fr;
           grid-template-areas:
-            'title-date title-date title-date'
-            'collection-logo playback-controls waveform-scrubber'
-            'desktop-search-section transcript-container transcript-container';
+            'title-date title-date title-date title-date'
+            'collection-logo 1 playback-controls waveform-scrubber'
+            'desktop-search-section transcript-container transcript-container transcript-container';
         }
         .title-date {
           display: flex;
