@@ -40,6 +40,8 @@ export default class RadioPlayer extends LitElement {
 
   @property({ type: Number }) private playbackRate = 1;
 
+  @property({ type: Number }) private volume = 1;
+
   private musicZones: MusicZone[] = [];
 
   render(): TemplateResult {
@@ -117,6 +119,7 @@ export default class RadioPlayer extends LitElement {
       <audio-element
         .sources=${this.audioSources}
         .playbackRate=${this.playbackRate}
+        .volume=${this.volume}
         @timeupdate=${this.handleTimeChange}
         @durationchange=${this.handleDurationChange}
         @playbackStarted=${this.playbackStarted}
@@ -136,6 +139,8 @@ export default class RadioPlayer extends LitElement {
         @back-button-pressed=${this.backButtonHandler}
         @play-pause-button-pressed=${this.playPauseButtonHandler}
         @forward-button-pressed=${this.forwardButtonHandler}
+        @volumeChange=${this.volumeChanged}
+        @playbackRateChange=${this.changePlaybackRate}
       >
       </playback-controls>
     `;
@@ -225,9 +230,12 @@ export default class RadioPlayer extends LitElement {
       : null;
   }
 
-  private changePlaybackRate(e: Event): void {
-    const target = e.target as HTMLFormElement;
-    this.playbackRate = target.value;
+  private changePlaybackRate(e: CustomEvent): void {
+    this.playbackRate = e.detail.playbackRate;
+  }
+
+  private volumeChanged(e: CustomEvent): void {
+    this.playbackRate = e.detail.volume;
   }
 
   private backButtonHandler(): void {

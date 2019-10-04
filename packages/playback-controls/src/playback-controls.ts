@@ -15,7 +15,7 @@ import volumeMuteImage from './assets/img/volume/volume-mute';
 export default class PlaybackControls extends LitElement {
   @property({ type: PlaybackMode }) playbackMode = PlaybackMode.paused;
 
-  @property({ type: Number }) playbackSpeed = 1;
+  @property({ type: Number }) playbackRate = 1;
 
   @property({ type: Number }) volume = 1;
 
@@ -24,12 +24,12 @@ export default class PlaybackControls extends LitElement {
       <div class="container">
         <div class="vertical-button-stack playback-speed">
           <div class="vertical-button-container">
-            <button class="unstyled-button" @click="${this.handlePlaybackSpeedChange}">
+            <button class="unstyled-button" @click="${this.handlePlaybackRateChange}">
               ${playbackSpeedImage}
             </button>
           </div>
           <div class="vertical-button-value">
-            ${this.playbackSpeed}x
+            ${this.playbackRate}x
           </div>
         </div>
         <button id="back-btn" class="jump-btn unstyled-button" @click="${this.handleBackButton}">
@@ -79,15 +79,15 @@ export default class PlaybackControls extends LitElement {
     return image
   }
 
-  handlePlaybackSpeedChange() {
-    if (this.playbackSpeed === 2.0) {
-      this.playbackSpeed = 0.5;
+  handlePlaybackRateChange() {
+    if (this.playbackRate === 2.0) {
+      this.playbackRate = 0.5;
     } else {
-      this.playbackSpeed += 0.25;
+      this.playbackRate += 0.25;
     }
 
-    const event = new CustomEvent('playbackSpeedChange', {
-      detail: { playbackSpeed: this.playbackSpeed },
+    const event = new CustomEvent('playbackRateChange', {
+      detail: { playbackRate: this.playbackRate },
       bubbles: true,
       composed: true,
     });
@@ -102,7 +102,7 @@ export default class PlaybackControls extends LitElement {
     }
 
     const event = new CustomEvent('volumeChange', {
-      detail: { playbackSpeed: this.volume },
+      detail: { volume: this.volume },
       bubbles: true,
       composed: true,
     });
