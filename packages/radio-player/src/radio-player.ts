@@ -20,6 +20,7 @@ import './search-bar/search-bar';
 import './quick-search';
 import MusicZone from './models/music-zone';
 import { ZoneOfSilence } from '@internetarchive/waveform-progress';
+import { PlaybackControls, PlaybackMode } from '@internetarchive/playback-controls';
 
 @customElement('radio-player')
 export default class RadioPlayer extends LitElement {
@@ -118,6 +119,8 @@ export default class RadioPlayer extends LitElement {
         .playbackRate=${this.playbackRate}
         @timeupdate=${this.handleTimeChange}
         @durationchange=${this.handleDurationChange}
+        @playbackStarted=${this.playbackStarted}
+        @playbackPaused=${this.playbackPaused}
       >
       </audio-element>
     `;
@@ -216,6 +219,12 @@ export default class RadioPlayer extends LitElement {
       : null;
   }
 
+  private get playbackControls(): PlaybackControls | null {
+    return this.shadowRoot
+      ? (this.shadowRoot.querySelector('playback-controls') as PlaybackControls)
+      : null;
+  }
+
   private changePlaybackRate(e: Event): void {
     const target = e.target as HTMLFormElement;
     this.playbackRate = target.value;
@@ -253,6 +262,18 @@ export default class RadioPlayer extends LitElement {
     this.currentTime = e.detail.currentTime;
     const percent = this.currentTime / this.duration;
     this.percentComplete = percent * 100;
+  }
+
+  private playbackPaused(): void {
+    if (this.playbackControls) {
+      this.playbackControls.playbackMode = PlaybackMode.paused;
+    }
+  }
+
+  private playbackStarted(): void {
+    if (this.playbackControls) {
+      this.playbackControls.playbackMode = PlaybackMode.playing;
+    }
   }
 
   private valueChangedFromScrub(e: CustomEvent): void {
