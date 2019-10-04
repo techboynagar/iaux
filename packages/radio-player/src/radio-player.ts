@@ -365,7 +365,7 @@ export default class RadioPlayer extends LitElement {
       /* wide view */
       @media (min-width: 650px) {
         main {
-          grid-template-columns: 192px 175px 1fr;
+          grid-template-columns: 192px 200px 1fr;
           grid-template-areas:
             'title-date title-date title-date'
             'collection-logo playback-controls waveform-scrubber'
