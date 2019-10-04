@@ -127,10 +127,19 @@ export default class PlaybackControls extends LitElement {
 
   static get styles() {
     return css`
+      :host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+      }
+
       .container {
         display: flex;
         justify-content: space-between;
         color: white;
+        width: 100%;
       }
 
       .vertical-button-stack {
@@ -139,19 +148,28 @@ export default class PlaybackControls extends LitElement {
         justify-content: center;
       }
 
+      .vertical-button-container {
+        text-align: center;
+      }
+
+      .vertical-button-container button {
+        vertical-align: bottom;
+      }
+
       .vertical-button-container svg {
         vertical-align: bottom;
       }
 
       .vertical-button-value {
-        font-size: 0.8em;
+        font-size: 0.7em;
+        line-height: 1.4em;
         text-align: center;
       }
 
       #play-pause-btn {
         border-radius: 50%;
-        max-height: 5rem;
-        max-width: 5rem;
+        height: 3rem;
+        width: 3rem;
         border: none;
         background-color: white;
         vertical-align: middle;
@@ -169,6 +187,12 @@ export default class PlaybackControls extends LitElement {
       .unstyled-button {
         background: none;
         border: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      button {
+        cursor: pointer;
       }
 
       .jump-btn:active img {

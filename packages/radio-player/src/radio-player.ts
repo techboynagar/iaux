@@ -235,7 +235,7 @@ export default class RadioPlayer extends LitElement {
   }
 
   private volumeChanged(e: CustomEvent): void {
-    this.playbackRate = e.detail.volume;
+    this.volume = e.detail.volume;
   }
 
   private backButtonHandler(): void {
@@ -364,6 +364,10 @@ export default class RadioPlayer extends LitElement {
         }
         search-bar {
           width: 75%;
+        }
+        playback-controls {
+          width: 75%;
+          margin: auto;
         }
         .desktop-search-section {
           display: none;
