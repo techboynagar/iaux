@@ -175,26 +175,13 @@ export default class RadioPlayer extends LitElement {
     // This is a case where the functionality is different enough to have two instances
     // of it instead of one and just show and hide them based on the media query.
     return html`
-      <div class="desktop-search-section">
+      <div class="search-section">
         <search-bar
           searchTerm=${this.searchTerm}
           .quickSearches=${this.quickSearches}
           @inputchange=${this.updateSearchTerm}
           @enterKeyPressed=${this.searchEnterKeyPressed}
-        >
-        </search-bar>
-        <search-results-switcher
-          class="${this.shouldShowSearchResultSwitcher ? '' : 'hidden'}"
-          @searchResultIndexChanged=${this.searchResultIndexChanged}>
-        </search-results-switcher>
-      </div>
-
-      <div class="mobile-search-section">
-        <search-bar
-          searchTerm=${this.searchTerm}
-          .quickSearches=${this.quickSearches}
-          @inputchange=${this.updateSearchTerm}
-          @enterKeyPressed=${this.searchEnterKeyPressed}
+          @searchCleared=${this.searchCleared}
         >
         </search-bar>
         <search-results-switcher
@@ -220,10 +207,24 @@ export default class RadioPlayer extends LitElement {
     return false;
   }
 
+  private searchCleared(): void {
+    this.searchTerm = '';
+    this.emitSearchClearedEvent();
+    if (this.transcriptView) {
+      this.transcriptView.selectedSearchResultIndex = 0;
+    }
+    if (this.searchResultsSwitcher) {
+      this.searchResultsSwitcher.currentResultIndex = 0;
+    }
+  }
+
+  private emitSearchClearedEvent(): void {
+    const event = new Event('searchCleared');
+    this.dispatchEvent(event);
+  }
+
   private searchResultIndexChanged(e: CustomEvent): void {
-    console.log('searchResultIndexChanged', e);
     if (!this.transcriptView) { return; }
-    console.log('setting index', e.detail.searchResultIndex);
     this.transcriptView.selectedSearchResultIndex = e.detail.searchResultIndex;
   }
 
@@ -396,7 +397,7 @@ export default class RadioPlayer extends LitElement {
             'collection-logo title-date'
             'waveform-scrubber waveform-scrubber'
             'playback-controls playback-controls'
-            'mobile-search-section mobile-search-section'
+            'search-section search-section'
             'transcript-container transcript-container';
         }
         .date {
@@ -412,9 +413,6 @@ export default class RadioPlayer extends LitElement {
           width: 75%;
           margin: auto;
         }
-        .desktop-search-section {
-          display: none;
-        }
       }
 
       /* wide view */
@@ -424,7 +422,7 @@ export default class RadioPlayer extends LitElement {
           grid-template-areas:
             'title-date title-date title-date title-date'
             'collection-logo 1 playback-controls waveform-scrubber'
-            'desktop-search-section transcript-container transcript-container transcript-container';
+            'search-section transcript-container transcript-container transcript-container';
         }
         .title-date {
           display: flex;
@@ -433,9 +431,6 @@ export default class RadioPlayer extends LitElement {
         }
         transcript-view {
           --timeDisplay: block;
-        }
-        .mobile-search-section {
-          display: none;
         }
       }
 
@@ -484,12 +479,8 @@ export default class RadioPlayer extends LitElement {
         grid-area: waveform-scrubber;
       }
 
-      .mobile-search-section {
-        grid-area: mobile-search-section;
-      }
-
-      .desktop-search-section {
-        grid-area: desktop-search-section;
+      .search-section {
+        grid-area: search-section;
       }
 
       .desktop-search-section h2 {

@@ -44,13 +44,6 @@
     import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
     import transcript from './transcript3.js';
 
-    const convertedTranscript = transcript.map((entry) => {
-      return new TranscriptEntryConfig(
-        entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
-    })
-
-    const transcriptConfig = new TranscriptConfig(convertedTranscript);
-
     // using a remote audio sample source because the local one sets the duration to Infinity for some reason
     // const audioSource = new AudioSource(
     //   'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
@@ -59,6 +52,8 @@
     // const audioSource = new AudioSource(
     //   'https://archive.org/download/KSOR_90_1_AM_20180130_180000/KSOR_90_1_AM_20180130_180000.mp3',
     //   'audio/mpeg');
+
+    const baseTranscriptConfig = getResetTranscriptConfig()
 
     const audioSource = new AudioSource(
       'https://ia803005.us.archive.org/30/items/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000.mp3',
@@ -106,8 +101,9 @@
       html`
         <radio-player
           .config=${config}
-          .transcriptConfig=${transcriptConfig}
-          @searchrequested=${doSearch}>
+          .transcriptConfig=${baseTranscriptConfig}
+          @searchrequested=${doSearch}
+          @searchCleared=${searchCleared}>
         </radio-player>
       `,
       document.querySelector('#demo')
@@ -151,12 +147,9 @@
 
     async function doSearch(e) {
       const term = e.detail.searchTerm;
-      console.log('doSearch', term);
       const searchUrl = `https://books-search0.us.archive.org/explorer/get_radio_captions_matches/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000_speech_vs_music_asr.json?q=${term}`;
-      console.log('searchUrl', searchUrl);
       const response = await fetch(searchUrl);
       const json = await response.json();
-      console.log(JSON.stringify(json));
 
       var searchResultCount = 0;
 
@@ -169,8 +162,27 @@
       const transcriptConfig = new TranscriptConfig(convertedTranscript);
 
       document.querySelector('radio-player').transcriptConfig = transcriptConfig;
+    }
 
-      // https://books-search0.us.archive.org/explorer/get_radio_captions_matches/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000_speech_vs_music_asr.json?q=Americana
+    function searchCleared() {
+      resetTranscript();
+    }
+
+    function resetTranscript() {
+      const transcriptConfig = getResetTranscriptConfig();
+
+      document.querySelector('radio-player').transcriptConfig = transcriptConfig;
+    }
+
+    function getResetTranscriptConfig() {
+      const convertedTranscript = transcript.map((entry) => {
+        return new TranscriptEntryConfig(
+          entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
+      })
+
+      const transcriptConfig = new TranscriptConfig(convertedTranscript);
+
+      return transcriptConfig;
     }
   </script>
 </body>

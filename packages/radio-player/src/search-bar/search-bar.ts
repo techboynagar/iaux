@@ -11,6 +11,7 @@ import {
 
 import MagnifyingGlass from './assets/img/magnifying-glass';
 import DisclosureTriangle from './assets/img/disclosure';
+import ClearResultsIcon from './assets/img/clear-results';
 
 @customElement('search-bar')
 export default class SearchBar extends LitElement {
@@ -40,6 +41,11 @@ export default class SearchBar extends LitElement {
             value=${this.searchTerm}
             @keyup=${this.inputChanged}
           />
+          <div class="clear-search-container endcap">
+            <button @click=${this.clearSearch} class="${this.searchTerm !== '' ? '' : 'hidden'}">
+              ${ClearResultsIcon}
+            </button>
+          </div>
           <div class="disclosure-container endcap">
             <button @click=${this.toggleDisclosure}>
               ${DisclosureTriangle}
@@ -57,9 +63,13 @@ export default class SearchBar extends LitElement {
     `;
   }
 
-  private inputChanged(e: KeyboardEvent) {
+  private clearSearch(): void {
+    this.searchTerm = '';
+    this.emitSearchClearedEvent();
+  }
+
+  private inputChanged(e: KeyboardEvent): void {
     this.emitInputChangeEvent();
-    console.log(e);
     if(e.key === 'Enter') {
       this.emitEnterKeyPressedEvent();
     }
@@ -78,10 +88,15 @@ export default class SearchBar extends LitElement {
   private emitEnterKeyPressedEvent(): void {
     const value = this.searchInput && this.searchInput.value;
     const event = new CustomEvent('enterKeyPressed', {
-      detail: { value: value },
+      detail: { value: value || '' },
       bubbles: true,
       composed: true,
     });
+    this.dispatchEvent(event);
+  }
+
+  private emitSearchClearedEvent(): void {
+    const event = new Event('searchCleared');
     this.dispatchEvent(event);
   }
 
@@ -130,17 +145,22 @@ export default class SearchBar extends LitElement {
         align-items: center;
         height: 2em;
         border: 1px solid white;
-        flex: 0 0 2em;
+        padding: 0 0.5em;
       }
       .endcap svg {
         height: 1.5em;
+      }
+
+      .clear-search-container {
+        border-left: 0;
+        border-radius: 0 1em 1em 0;
       }
 
       .magnifier-container {
         border-radius: 1em 0 0 1em;
         border-right: 0;
       }
-      .container.is-open.shows-disclosure .magnifier-container {
+      .container.is-open.shows-disclosure .clear-search-container {
         border-radius: 1em 0 0 0;
       }
       .disclosure-container {
@@ -163,17 +183,12 @@ export default class SearchBar extends LitElement {
         border-top: 1px solid white;
         border-bottom: 1px solid white;
         border-left: 0;
-        border-radius: 0 1rem 1rem 0;
+        border-right: 0;
         background-color: black;
         color: white;
         padding: 5px 0;
         margin: 0;
         flex: 1 1 auto;
-      }
-
-      .container.shows-disclosure .search-input {
-        border-right: 0;
-        border-radius: 0;
       }
 
       .search-input:focus {
@@ -203,6 +218,17 @@ export default class SearchBar extends LitElement {
         border: 1px solid white;
         border-top: 0;
         display: block;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      button {
+        background: none;
+        border: none;
+        margin: 0;
+        padding: 0;
       }
     `;
   }
