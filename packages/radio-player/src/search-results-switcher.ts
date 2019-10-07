@@ -6,6 +6,7 @@ import {
   property,
   CSSResult,
   TemplateResult,
+  PropertyValues,
 } from 'lit-element';
 
 @customElement('search-results-switcher')
@@ -39,6 +40,12 @@ export default class SearchResultsSwitcher extends LitElement {
         user-select: none;
       }
     `;
+  }
+
+  updated(changedProperties: PropertyValues): void {
+    if (changedProperties.has('numberOfResults')) {
+      this.currentResultIndex = 0;
+    }
   }
 
   goToPreviousResult(): void {

@@ -313,6 +313,10 @@ export default class TranscriptView extends LitElement {
     if (changedProperties.has('autoScroll')) {
       this.handleAutoScrollChange();
     }
+    if (changedProperties.has('config')) {
+      this.selectedSearchResultIndex = 0;
+      this.scrollToSelectedSearchResult();
+    }
   }
 
   get scrollView(): HTMLElement | null {

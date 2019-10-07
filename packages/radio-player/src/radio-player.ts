@@ -201,7 +201,7 @@ export default class RadioPlayer extends LitElement {
   }
 
   private get shouldShowSearchResultSwitcher(): boolean {
-    if (this.transcriptEntries.find((entry: TranscriptEntryConfig) => entry.searchMatchIndex)) {
+    if (this.searchResults.length > 0) {
       return true;
     }
     return false;
@@ -308,12 +308,14 @@ export default class RadioPlayer extends LitElement {
   }
 
   private playbackPaused(): void {
+    this.isPlaying = false;
     if (this.playbackControls) {
       this.playbackControls.playbackMode = PlaybackMode.paused;
     }
   }
 
   private playbackStarted(): void {
+    this.isPlaying = true;
     if (this.playbackControls) {
       this.playbackControls.playbackMode = PlaybackMode.playing;
     }
@@ -329,9 +331,10 @@ export default class RadioPlayer extends LitElement {
   }
 
   private transcriptEntrySelected(e: CustomEvent): void {
-    const newTime = e.detail.entry.startTime;
+    const newTime = e.detail.entry.start;
     if (this.audioElement) {
       this.audioElement.seekTo(newTime);
+      this.audioElement.play();
     }
   }
 
@@ -358,11 +361,14 @@ export default class RadioPlayer extends LitElement {
   }
 
   private updateSearchResultSwitcher(): void {
-    const resultCount: number = this.transcriptEntries.filter(
-      (entry: TranscriptEntryConfig) => entry.searchMatchIndex).length;
+    const resultCount: number = this.searchResults.length;
     if (this.searchResultsSwitcher) {
       this.searchResultsSwitcher.numberOfResults = resultCount;
     }
+  }
+
+  private get searchResults(): TranscriptEntryConfig[] {
+    return this.transcriptConfig ? this.transcriptConfig.searchResults : [];
   }
 
   updated(changedProperties: PropertyValues): void {
