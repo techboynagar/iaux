@@ -14,6 +14,8 @@
       display: block;
       border-bottom: 1px solid white;
       line-height: 1.5rem;
+      color: white;
+
       --timeColor: white;
       --timeColumnWidth: 3rem;
       --transcriptHeight: 200px;
@@ -104,7 +106,8 @@
       html`
         <radio-player
           .config=${config}
-          .transcriptConfig=${transcriptConfig}>
+          .transcriptConfig=${transcriptConfig}
+          @searchrequested=${doSearch}>
         </radio-player>
       `,
       document.querySelector('#demo')
@@ -144,6 +147,30 @@
 
     function autoScrollChanged(e) {
       document.querySelector('radio-player-dev-options').autoScroll = e.detail.autoScroll;
+    }
+
+    async function doSearch(e) {
+      const term = e.detail.searchTerm;
+      console.log('doSearch', term);
+      const searchUrl = `https://books-search0.us.archive.org/explorer/get_radio_captions_matches/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000_speech_vs_music_asr.json?q=${term}`;
+      console.log('searchUrl', searchUrl);
+      const response = await fetch(searchUrl);
+      const json = await response.json();
+      console.log(JSON.stringify(json));
+
+      var searchResultCount = 0;
+
+      const convertedTranscript = json.map((entry) => {
+        searchResultCount += entry.search_match_index ? 1 : 0;
+        return new TranscriptEntryConfig(
+          entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
+      })
+
+      const transcriptConfig = new TranscriptConfig(convertedTranscript);
+
+      document.querySelector('radio-player').transcriptConfig = transcriptConfig;
+
+      // https://books-search0.us.archive.org/explorer/get_radio_captions_matches/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000_speech_vs_music_asr.json?q=Americana
     }
   </script>
 </body>

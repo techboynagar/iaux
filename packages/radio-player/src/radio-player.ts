@@ -9,7 +9,7 @@ import {
   PropertyValues,
 } from 'lit-element';
 import { AudioElement, AudioSource } from '@internetarchive/audio-element';
-import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
+import { TranscriptConfig, TranscriptEntryConfig, TranscriptView } from '@internetarchive/transcript-view';
 import RadioPlayerConfig from './models/radio-player-config';
 
 import '@internetarchive/waveform-progress';
@@ -18,6 +18,9 @@ import '@internetarchive/scrubber-bar';
 
 import './search-bar/search-bar';
 import './quick-search';
+import './search-results-switcher';
+import SearchResultsSwitcher from './search-results-switcher';
+
 import MusicZone from './models/music-zone';
 import { ZoneOfSilence } from '@internetarchive/waveform-progress';
 import { PlaybackControls, PlaybackMode } from '@internetarchive/playback-controls';
@@ -177,27 +180,27 @@ export default class RadioPlayer extends LitElement {
           searchTerm=${this.searchTerm}
           .quickSearches=${this.quickSearches}
           @inputchange=${this.updateSearchTerm}
+          @enterKeyPressed=${this.searchEnterKeyPressed}
         >
         </search-bar>
-
-        <h2>Quick Search</h2>
-        <div class="quick-search-container">
-          <quick-search
-            .quickSearches=${this.quickSearches}
-            @searchTermSelected=${this.doQuickSearch}
-          >
-          </quick-search>
-        </div>
+        <search-results-switcher
+          class="${this.shouldShowSearchResultSwitcher ? '' : 'hidden'}"
+          @searchResultIndexChanged=${this.searchResultIndexChanged}>
+        </search-results-switcher>
       </div>
 
       <div class="mobile-search-section">
         <search-bar
           searchTerm=${this.searchTerm}
           .quickSearches=${this.quickSearches}
-          showsDisclosure="true"
           @inputchange=${this.updateSearchTerm}
+          @enterKeyPressed=${this.searchEnterKeyPressed}
         >
         </search-bar>
+        <search-results-switcher
+          class="${this.shouldShowSearchResultSwitcher ? '' : 'hidden'}"
+          @searchResultIndexChanged=${this.searchResultIndexChanged}>
+        </search-results-switcher>
       </div>
     `;
   }
@@ -210,12 +213,37 @@ export default class RadioPlayer extends LitElement {
     this.searchTerm = e.detail.value;
   }
 
-  private doQuickSearch(e: CustomEvent): void {
-    this.searchTerm = e.detail.searchTerm;
+  private get shouldShowSearchResultSwitcher(): boolean {
+    if (this.transcriptEntries.find((entry: TranscriptEntryConfig) => entry.searchMatchIndex)) {
+      return true;
+    }
+    return false;
+  }
+
+  private searchResultIndexChanged(e: CustomEvent): void {
+    console.log('searchResultIndexChanged', e);
+    if (!this.transcriptView) { return; }
+    console.log('setting index', e.detail.searchResultIndex);
+    this.transcriptView.selectedSearchResultIndex = e.detail.searchResultIndex;
+  }
+
+  private searchEnterKeyPressed(e: CustomEvent): void {
+    const event = new CustomEvent('searchrequested', {
+      detail: { searchTerm: e.detail.value },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
   }
 
   private get transcriptEntries(): TranscriptEntryConfig[] {
     return this.transcriptConfig ? this.transcriptConfig.entries : [];
+  }
+
+  private get transcriptView(): TranscriptView | null {
+    return this.shadowRoot
+      ? (this.shadowRoot.querySelector('transcript-view') as TranscriptView)
+      : null;
   }
 
   private get audioElement(): AudioElement | null {
@@ -227,6 +255,12 @@ export default class RadioPlayer extends LitElement {
   private get playbackControls(): PlaybackControls | null {
     return this.shadowRoot
       ? (this.shadowRoot.querySelector('playback-controls') as PlaybackControls)
+      : null;
+  }
+
+  private get searchResultsSwitcher(): SearchResultsSwitcher | null {
+    return this.shadowRoot
+      ? (this.shadowRoot.querySelector('search-results-switcher') as SearchResultsSwitcher)
       : null;
   }
 
@@ -322,9 +356,18 @@ export default class RadioPlayer extends LitElement {
     }
   }
 
+  private updateSearchResultSwitcher(): void {
+    const resultCount: number = this.transcriptEntries.filter(
+      (entry: TranscriptEntryConfig) => entry.searchMatchIndex).length;
+    if (this.searchResultsSwitcher) {
+      this.searchResultsSwitcher.numberOfResults = resultCount;
+    }
+  }
+
   updated(changedProperties: PropertyValues): void {
     if (changedProperties.has('transcriptConfig')) {
       this.updateMusicZones();
+      this.updateSearchResultSwitcher();
     }
 
     if (changedProperties.has('currentTime')) {
@@ -470,6 +513,10 @@ export default class RadioPlayer extends LitElement {
       search-bar {
         display: block;
         margin: auto;
+      }
+
+      .hidden {
+        display: none;
       }
     `;
   }

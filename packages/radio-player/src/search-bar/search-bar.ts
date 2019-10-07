@@ -38,7 +38,7 @@ export default class SearchBar extends LitElement {
             class="search-input"
             placeholder="Search"
             value=${this.searchTerm}
-            @input=${this.emitInputChangeEvent}
+            @keyup=${this.inputChanged}
           />
           <div class="disclosure-container endcap">
             <button @click=${this.toggleDisclosure}>
@@ -57,9 +57,27 @@ export default class SearchBar extends LitElement {
     `;
   }
 
+  private inputChanged(e: KeyboardEvent) {
+    this.emitInputChangeEvent();
+    console.log(e);
+    if(e.key === 'Enter') {
+      this.emitEnterKeyPressedEvent();
+    }
+  }
+
   private emitInputChangeEvent(): void {
     const value = this.searchInput && this.searchInput.value;
     const event = new CustomEvent('inputchange', {
+      detail: { value: value },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
+
+  private emitEnterKeyPressedEvent(): void {
+    const value = this.searchInput && this.searchInput.value;
+    const event = new CustomEvent('enterKeyPressed', {
       detail: { value: value },
       bubbles: true,
       composed: true,
