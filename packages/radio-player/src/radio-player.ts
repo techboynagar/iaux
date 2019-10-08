@@ -56,13 +56,13 @@ export default class RadioPlayer extends LitElement {
   render(): TemplateResult {
     return html`
       ${this.audioElementTemplate}
-      <main>
+      <section role="main">
         ${this.titleDateTemplate} ${this.collectionLogoTemplate} ${this.playbackControlsTemplate}
         <div class="waveform-scrubber-container">
           ${this.waveFormProgressTemplate} ${this.scrubberBarTemplate}
         </div>
         ${this.searchSectionTemplate} ${this.transcriptViewTemplate}
-      </main>
+      </section>
     `;
   }
 
@@ -420,14 +420,17 @@ export default class RadioPlayer extends LitElement {
     const dateFontCss = css`var(--dateFont, 1em sans-serif)`;
 
     return css`
-      main {
+      section[role="main"] {
+        display: -ms-grid;
         display: grid;
         grid-gap: 0.5rem;
       }
 
       /* mobile view */
       @media (max-width: 770px) {
-        main {
+        section[role="main"] {
+          -ms-grid-columns: 25% 0.5rem 1fr;
+          -ms-grid-rows: auto 0.5rem auto 0.5rem auto 0.5rem auto 0.5rem auto;
           grid-template-columns: 25% 1fr;
           grid-template-areas:
             'collection-logo title-date'
@@ -442,18 +445,48 @@ export default class RadioPlayer extends LitElement {
         transcript-view {
           --timeDisplay: none;
         }
-        search-bar {
-          width: 75%;
-        }
         playback-controls {
           width: 75%;
           margin: auto;
+          -ms-grid-row: 5;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 3;
+        }
+        .title-date {
+          -ms-grid-row: 1;
+          -ms-grid-column: 3;
+        }
+        .transcript-container {
+          -ms-grid-row: 9;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 3;
+        }
+        .collection-logo {
+          -ms-grid-row: 1;
+          -ms-grid-column: 1;
+        }
+        .waveform-scrubber-container {
+          -ms-grid-row: 3;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 3;
+        }
+        .search-section {
+          -ms-grid-row: 7;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 3;
+          width: 75%;
+          margin: auto;
+        }
+        search-bar {
+          width: 100%;
         }
       }
 
       /* wide view */
       @media (min-width: 770px) {
-        main {
+        section[role="main"] {
+          -ms-grid-columns: 192px 0.5rem 3rem 0.5rem 200px 0.5rem 1fr;
+          -ms-grid-rows: auto 0.5rem auto 0.5rem auto;
           grid-template-columns: 192px 3rem 200px 1fr;
           grid-template-areas:
             'title-date title-date title-date title-date'
@@ -464,9 +497,36 @@ export default class RadioPlayer extends LitElement {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
+          -ms-grid-row: 1;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 7;
         }
         transcript-view {
           --timeDisplay: block;
+        }
+        playback-controls {
+          -ms-grid-row: 3;
+          -ms-grid-column: 5;
+          -ms-grid-column-span: 1;
+        }
+        .transcript-container {
+          -ms-grid-row: 5;
+          -ms-grid-column: 3;
+          -ms-grid-column-span: 5;
+        }
+        .collection-logo {
+          -ms-grid-row: 3;
+          -ms-grid-column: 1;
+        }
+        .waveform-scrubber-container {
+          -ms-grid-row: 3;
+          -ms-grid-column: 7;
+          -ms-grid-column-span: 1;
+        }
+        .search-section {
+          -ms-grid-row: 5;
+          -ms-grid-column: 1;
+          -ms-grid-column-span: 1;
         }
       }
 

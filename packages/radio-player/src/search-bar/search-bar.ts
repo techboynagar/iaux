@@ -198,7 +198,7 @@ export default class SearchBar extends LitElement {
         border-right: 0;
         background-color: black;
         color: white;
-        padding: 5px 0;
+        padding: 2.5px 0 2.5px 0;  /* I don't totally understand this, but for IE, this makes the input the correct height */
         margin: 0;
         flex: 1 1 auto;
       }
