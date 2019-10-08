@@ -41,8 +41,8 @@ export default class SearchBar extends LitElement {
             value=${this.searchTerm}
             @keyup=${this.inputChanged}
           />
-          <div class="clear-search-container endcap">
-            <button @click=${this.clearSearch} class="${this.searchTerm !== '' ? '' : 'hidden'}">
+          <div class="clear-search-container endcap ${this.searchTerm === '' ? '' : 'is-searching'}">
+            <button @click=${this.clearSearch}>
               ${ClearResultsIcon}
             </button>
           </div>
@@ -156,6 +156,18 @@ export default class SearchBar extends LitElement {
         border-radius: 0 1em 1em 0;
       }
 
+      .clear-search-container.is-searching {
+        padding: 0 0.5em 0 0;
+      }
+
+      .clear-search-container button {
+        display: none;
+      }
+
+      .clear-search-container.is-searching button {
+        display: block;
+      }
+
       .magnifier-container {
         border-radius: 1em 0 0 1em;
         border-right: 0;
@@ -218,10 +230,6 @@ export default class SearchBar extends LitElement {
         border: 1px solid white;
         border-top: 0;
         display: block;
-      }
-
-      .hidden {
-        display: none;
       }
 
       button {

@@ -10,7 +10,7 @@
       font-family: sans-serif;
     }
 
-    radio-player {
+    radio-player-controller {
       display: block;
       border-bottom: 1px solid white;
       line-height: 1.5rem;
@@ -38,152 +38,15 @@
 
   <script type="module">
     import { html, render } from 'lit-html';
-    import '../lib/radio-player.js';
-    import RadioPlayerConfig from '../lib/models/radio-player-config.js'
-    import { AudioSource } from '@internetarchive/audio-element';
-    import { TranscriptConfig, TranscriptEntryConfig } from '@internetarchive/transcript-view';
-    import transcript from './transcript3.js';
-
-    // using a remote audio sample source because the local one sets the duration to Infinity for some reason
-    // const audioSource = new AudioSource(
-    //   'https://archive.org/download/VOA_Global_English_20170803_190000/VOA_Global_English_20170803_190000.mp3',
-    //   'audio/mpeg');
-
-    // const audioSource = new AudioSource(
-    //   'https://archive.org/download/KSOR_90_1_AM_20180130_180000/KSOR_90_1_AM_20180130_180000.mp3',
-    //   'audio/mpeg');
-
-    const baseTranscriptConfig = getResetTranscriptConfig()
-
-    const audioSource = new AudioSource(
-      'https://ia803005.us.archive.org/30/items/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000.mp3',
-      'audio/mpeg');
-
-    const quickSearchTerms = [
-      'International relations',
-      'International law',
-      'Birth control',
-      'Sports terminology',
-      'Training',
-      'Human rights',
-      'Economics',
-      'Law',
-      'Geography terminology',
-      'IOS software',
-      'American football terminology',
-      'Android (operating system) software',
-      "Women's National Basketball Association teams",
-      'Olympic medals',
-      'Gold',
-      'Orders, decorations, and medals',
-      'Connecticut',
-      'Abuse',
-      'Personhood',
-      'Culture',
-      'Google',
-      'BlackBerry software',
-      'Java platform software',
-      'Capitals in Asia',
-      'Cigarettes',
-      'Tobacco'
-    ]
-
-    const config = new RadioPlayerConfig(
-      'Voice of America',
-      '7:00pm',
-      './logo.jpg',
-      './waveform.png',
-      [audioSource],
-      quickSearchTerms
-    )
+    import '../lib/demo/radio-player-controller.js'
 
     render(
       html`
-        <radio-player
-          .config=${config}
-          .transcriptConfig=${baseTranscriptConfig}
-          @searchrequested=${doSearch}
-          @searchCleared=${searchCleared}>
-        </radio-player>
+        <radio-player-controller>
+        </radio-player-controller>
       `,
       document.querySelector('#demo')
     );
-
-    window.setTimeout(() => {
-      document.querySelector('radio-player').autoScroll = true;
-    }, 0);
-
-    function currentTimeChanged(e) {
-      document.querySelector('radio-player').currentTime = e.detail.currentTime;
-    }
-
-    function topContextHeightChanged(e) {
-      document.querySelector('radio-player').topContextHeight = e.detail.height;
-    }
-
-    function bottomContextHeightChanged(e) {
-      document.querySelector('radio-player').bottomContextHeight = e.detail.height;
-    }
-
-    function transcriptHeightChanged(e) {
-      document.querySelector('radio-player').style.setProperty('--transcriptHeight', `${e.detail.height}px`);
-    }
-
-    function showContextZonesChanged(e) {
-      document.querySelector('radio-player').showContextZones = e.detail.showContextZones;
-    }
-
-    function searchResultIndexChanged(e) {
-      document.querySelector('radio-player').selectedSearchResultIndex = e.detail.searchResultIndex;
-    }
-
-    function shouldAutoScroll(e) {
-      document.querySelector('radio-player').autoScroll = e.detail.autoScroll;
-    }
-
-    function autoScrollChanged(e) {
-      document.querySelector('radio-player-dev-options').autoScroll = e.detail.autoScroll;
-    }
-
-    async function doSearch(e) {
-      const term = e.detail.searchTerm;
-      const searchUrl = `https://books-search0.us.archive.org/explorer/get_radio_captions_matches/BBC_Radio_2_20190502_180000/BBC_Radio_2_20190502_180000_speech_vs_music_asr.json?q=${term}`;
-      const response = await fetch(searchUrl);
-      const json = await response.json();
-
-      var searchResultCount = 0;
-
-      const convertedTranscript = json.map((entry) => {
-        searchResultCount += entry.search_match_index ? 1 : 0;
-        return new TranscriptEntryConfig(
-          entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
-      })
-
-      const transcriptConfig = new TranscriptConfig(convertedTranscript);
-
-      document.querySelector('radio-player').transcriptConfig = transcriptConfig;
-    }
-
-    function searchCleared() {
-      resetTranscript();
-    }
-
-    function resetTranscript() {
-      const transcriptConfig = getResetTranscriptConfig();
-
-      document.querySelector('radio-player').transcriptConfig = transcriptConfig;
-    }
-
-    function getResetTranscriptConfig() {
-      const convertedTranscript = transcript.map((entry) => {
-        return new TranscriptEntryConfig(
-          entry.id, entry.start, entry.end, entry.text, entry.is_music || false, entry.search_match_index);
-      })
-
-      const transcriptConfig = new TranscriptConfig(convertedTranscript);
-
-      return transcriptConfig;
-    }
   </script>
 </body>
 </html>

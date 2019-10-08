@@ -11,7 +11,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "dev_tools/**/*.ts"
+    "dev_tools/**/*.ts",
+    "demo/**/*.ts"
   ],
   "exclude": [
     "node_modules/!(@open-wc)",

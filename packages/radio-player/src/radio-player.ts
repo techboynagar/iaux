@@ -45,7 +45,13 @@ export default class RadioPlayer extends LitElement {
 
   @property({ type: Number }) private volume = 1;
 
+  @property({ type: Boolean }) private shouldShowSearchResultSwitcher = false;
+
+  @property({ type: Boolean }) private shouldShowNoSearchResultMessage = false;
+
   private musicZones: MusicZone[] = [];
+
+  private searchRequested: boolean = false;
 
   render(): TemplateResult {
     return html`
@@ -181,13 +187,29 @@ export default class RadioPlayer extends LitElement {
           .quickSearches=${this.quickSearches}
           @inputchange=${this.updateSearchTerm}
           @enterKeyPressed=${this.searchEnterKeyPressed}
-          @searchCleared=${this.searchCleared}
-        >
+          @searchCleared=${this.searchCleared}>
         </search-bar>
-        <search-results-switcher
-          class="${this.shouldShowSearchResultSwitcher ? '' : 'hidden'}"
-          @searchResultIndexChanged=${this.searchResultIndexChanged}>
-        </search-results-switcher>
+        <div class="search-results-info">
+          ${this.searchResultsSwitcherTemplate}
+          ${this.noSearchResultsTemplate}
+        </div>
+      </div>
+    `;
+  }
+
+  private get searchResultsSwitcherTemplate(): TemplateResult {
+    return html`
+      <search-results-switcher
+        class="${this.shouldShowSearchResultSwitcher ? '' : 'hidden'}"
+        @searchResultIndexChanged=${this.searchResultIndexChanged}>
+      </search-results-switcher>
+    `;
+  }
+
+  private get noSearchResultsTemplate(): TemplateResult {
+    return html`
+      <div class="no-search-results-message ${this.shouldShowNoSearchResultMessage ? '' : 'hidden'}">
+        No search results.
       </div>
     `;
   }
@@ -198,13 +220,6 @@ export default class RadioPlayer extends LitElement {
 
   private updateSearchTerm(e: CustomEvent): void {
     this.searchTerm = e.detail.value;
-  }
-
-  private get shouldShowSearchResultSwitcher(): boolean {
-    if (this.searchResults.length > 0) {
-      return true;
-    }
-    return false;
   }
 
   private searchCleared(): void {
@@ -229,6 +244,7 @@ export default class RadioPlayer extends LitElement {
   }
 
   private searchEnterKeyPressed(e: CustomEvent): void {
+    this.searchRequested = true;
     const event = new CustomEvent('searchrequested', {
       detail: { searchTerm: e.detail.value },
       bubbles: true,
@@ -361,10 +377,24 @@ export default class RadioPlayer extends LitElement {
   }
 
   private updateSearchResultSwitcher(): void {
+    this.shouldShowNoSearchResultMessage = false;
+    this.shouldShowSearchResultSwitcher = false;
+
+    // we only want to show the search results switcher or message if the user has previously requested a search
+    // since this method will be called independent of the search
+    if (!this.searchRequested) { return; }
+
     const resultCount: number = this.searchResults.length;
-    if (this.searchResultsSwitcher) {
-      this.searchResultsSwitcher.numberOfResults = resultCount;
+    if (resultCount === 0) {
+      this.shouldShowNoSearchResultMessage = true;
+    } else {
+      this.shouldShowSearchResultSwitcher = true;
+      if (this.searchResultsSwitcher) {
+        this.searchResultsSwitcher.numberOfResults = resultCount;
+      }
     }
+
+    this.searchRequested = false;
   }
 
   private get searchResults(): TranscriptEntryConfig[] {
@@ -489,11 +519,8 @@ export default class RadioPlayer extends LitElement {
         grid-area: search-section;
       }
 
-      .desktop-search-section h2 {
-        color: white;
-        margin: 0.5em 0.5em 0 0.5em;
-        font-size: 1em;
-        font-weight: normal;
+      .search-results-info {
+        margin-top: 0.5em;
       }
 
       .quick-search-container {
@@ -510,6 +537,10 @@ export default class RadioPlayer extends LitElement {
       search-bar {
         display: block;
         margin: auto;
+      }
+
+      .no-search-results-message {
+        text-align: center;
       }
 
       .hidden {
