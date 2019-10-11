@@ -16,6 +16,7 @@ export default class TopnavElement extends LitElement {
       searchMenuAnimate: { type: Boolean },
       mediaMenuOpen: { type: Boolean },
       mediaMenuAnimate: { type: Boolean },
+      searchIputValue: { type: String }
     };
   }
 
@@ -28,6 +29,7 @@ export default class TopnavElement extends LitElement {
     this.searchMenuFade = false;
     this.mediaMenuOpen = false;
     this.mediaMenuAnimate = false;
+    this.searchIputValue = '';
   }
 
   mediaMenu() {
@@ -55,6 +57,28 @@ export default class TopnavElement extends LitElement {
     this.mediaMenuOpen = this.mediaMenuOpen ? !this.mediaMenuOpen : this.mediaMenuOpen;
     this.userMenuAnimate = true;
     this.userMenuOpen = !this.userMenuOpen;
+  }
+
+  searchTypeSelected({ detail }) {
+    console.log('topnav - IN searchTypeSelected', detail);
+    const event = new CustomEvent('navSearchTypeSelected', {
+      detail,
+      bubbles: true,
+      composed: true,
+    });
+    console.log('EVENT', event);
+    this.dispatchEvent(event);
+  }
+
+  searchTextOnSubmit(e) {
+    const { value } = e.target;
+    const event = new CustomEvent('navFireSearch', {
+      detail: { value },
+      bubbles: true,
+      composed: true,
+    });
+    this.searchIputValue = value;
+    this.dispatchEvent(event);
   }
 
   render() {
@@ -86,16 +110,17 @@ export default class TopnavElement extends LitElement {
         </div>
         <!--New div created to replace above one when search is activated-->
         <div class="center search-activated align-center fade-in ${searchMenuOpen}">
-          <div class="highlight">
-            <input
-              type="text"
-              class="search-field"
-              placeholder="Search Internet Archive"
-              required
-            />
-            <button class="search" @click="${this.searchMenu}">
-              <search-image colour="${searchGlassColour}"></search-image>
-            </button>
+          <div class="highlight full-width">
+            <form class="flex align-center full-width" @submit="${this.searchTextOnSubmit}">
+              <input
+                type="text"
+                class="search-field full-width"
+                placeholder="Search Internet Archive"
+              />
+              <button class="search" @click="${this.searchTextOnSubmit}">
+                <search-image colour="${searchGlassColour}"></search-image>
+              </button>
+            </form>
           </div>
         </div>
         <!--End of replacement div-->
@@ -113,6 +138,7 @@ export default class TopnavElement extends LitElement {
       <search-menu
         ?searchMenuOpen="${this.searchMenuOpen}"
         ?searchMenuAnimate="${this.searchMenuAnimate}"
+        @searchTypeSelected="${this.searchTypeSelected}"
         tabindex="${searchMenuTabIndex}"
       ></search-menu>
       <user-menu
@@ -152,6 +178,9 @@ export default class TopnavElement extends LitElement {
       }
       .align-center {
         align-items: center;
+      }
+      .full-width {
+        width: 100%;
       }
       .navbar {
         position: relative;
@@ -198,15 +227,12 @@ export default class TopnavElement extends LitElement {
         border-radius: 0.6rem;
       }
       .search-activated .highlight {
-        display: flex;
-        width: 100%;
         margin: 0 1.5%;
       }
       .search-activated .search {
         margin-right: 0;
       }
       .search-activated .search-field {
-        width: 100%;
         height: 3rem;
         border-radius: 0.6rem;
         border: none;
