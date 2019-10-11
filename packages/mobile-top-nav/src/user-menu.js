@@ -1,11 +1,30 @@
 import { LitElement, html, css } from 'lit-element';
 
+import userMenuRef from './assets/menu-groups/user';
+
 class UserMenu extends LitElement {
   static get properties() {
     return {
       userMenuOpen: { type: Boolean },
       userMenuAnimate: { type: Boolean },
+      user: { type: Object }
     };
+  }
+
+  constructor() {
+    super();
+
+    this.user = null;
+  }
+
+  get dropdownMenuTemplate() {
+    const { user } = this;
+    const { loggedOut, loggedIn } = userMenuRef;
+    const links = user ? loggedIn : loggedOut;
+
+    return links.map(({ link, label }) => html`
+      <a href="${link}">${label}</a>
+    `);
   }
 
   render() {
@@ -20,22 +39,17 @@ class UserMenu extends LitElement {
     const userMenuHidden = Boolean(!this.userMenuOpen).toString();
     const userMenuExpanded = Boolean(this.userMenuOpen).toString();
 
+    const username = this.user ? html`<a href="#">USERNAME</a>` : '';
+    const userSession = this.user ? 'logged-in' : 'logged-out';
     return html`
       <nav
         class="user-menu tx-slide ${userMenuClass}"
         aria-hidden="${userMenuHidden}"
         aria-expanded="${userMenuExpanded}"
       >
-        <div class="menu-group">
-          <a href="#"><b>USERNAME</b></a>
-          <a href="#">Upload</a>
-          <a href="#">My library</a>
-          <a href="#">My loans</a>
-          <a href="#">My favourites</a>
-          <a href="#">My web archive</a>
-          <a href="#">Edit settings</a>
-          <a href="#">Get help</a>
-          <a href="#">Log out</a>
+        <div class="menu-group ${userSession}">
+          ${username}
+          ${this.dropdownMenuTemplate}
         </div>
       </nav>
     `;
@@ -66,9 +80,15 @@ class UserMenu extends LitElement {
         max-width: 100vw;
       }
       .user-menu .menu-group {
-        min-height: 50vh;
         min-width: 30vw;
         margin: 4% auto;
+      }
+      .user-menu .menu-group.logged-out {
+        min-height: 6vh;
+        max-height: 20vh;
+      }
+      .user-menu .menu-group.logged-in {
+        min-height: 50vh;
       }
       .user-menu .menu-group a {
         display: block;
