@@ -11,13 +11,37 @@ class SearchMenu extends LitElement {
 
   constructor() {
     super();
-    this.selectedSearchType = '';
+    this.selectedSearchType = 'metadata';
   }
 
-  selectedSearchType() {
-    const { selectedSearchType } = this;
-    // placeholder for click handler
-    return selectedSearchType;
+  firstUpdated() {
+    this.searchTypeSelected();
+  }
+
+  getSearchTypeValue(e) {
+    if (!e) {
+      return this.selectedSearchType;
+    }
+
+    const { target = {} } = e;
+    const { value = '' } = target;
+    return value;
+  }
+
+  searchTypeSelected(e) {
+    const searchType = this.getSearchTypeValue(e);
+    if (!searchType) {
+      return;
+    }
+
+    const event = new CustomEvent('searchTypeSelected', {
+      detail: { searchType },
+      bubbles: true,
+      composed: true,
+    });
+    this.selectedSearchType = searchType;
+    this.dispatchEvent(event);
+    console.log('dispatched search type event', event);
   }
 
   get searchTypesTemplate() {
@@ -27,11 +51,29 @@ class SearchMenu extends LitElement {
       { option: 'tv', label: 'TV news captions' },
       { option: 'web', label: 'archived websites' },
     ].map(({ option, label }) => {
-      const checked = option === 'metadata' ? 'checked' : '';
+      const checked = option === this.selectedSearchType ? 'checked' : '';
+      const input = checked
+        ? html`
+            <input
+              type="radio"
+              name="search"
+              value="${option}"
+              checked=""
+              @click="${this.searchTypeSelected}"
+            />
+          `
+        : html`
+            <input
+              type="radio"
+              name="search"
+              value="${option}"
+              @click="${this.searchTypeSelected}"
+            />
+          `;
 
       return html`
-        <label class="search-type" @click="${this.selectedSearchType}">
-          <input type="radio" name="search" value="${option}" checked="${checked}" />
+        <label class="search-type">
+          ${input}
           <span>Search ${label}</span>
         </label>
       `;
