@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 
+import userMenuRef from './assets/menu-groups/user';
+
 import './user-menu';
 import './search-menu';
 import './media-menu';
@@ -16,6 +18,7 @@ export default class TopnavElement extends LitElement {
       searchMenuAnimate: { type: Boolean },
       mediaMenuOpen: { type: Boolean },
       mediaMenuAnimate: { type: Boolean },
+      user: { type: Object }
     };
   }
 
@@ -28,6 +31,7 @@ export default class TopnavElement extends LitElement {
     this.searchMenuFade = false;
     this.mediaMenuOpen = false;
     this.mediaMenuAnimate = false;
+    this.user = null;
   }
 
   mediaMenu() {
@@ -57,19 +61,53 @@ export default class TopnavElement extends LitElement {
     this.userMenuOpen = !this.userMenuOpen;
   }
 
+  get userNavButtonTemplate() {
+    const { userMenuOpen, user } = this;
+    const { profileImgUrl } = userMenuRef;
+
+    const baseColor = '#999';
+    const activeColor = '#fff';
+    const userColour = userMenuOpen ? activeColor : baseColor;
+
+    const icon = html`<user-image colour="${userColour}"></user-image>`;
+
+    if (!user) {
+      return icon;
+    }
+
+    const bust = Date.now();
+    return html`
+      <img class="profile-pic" src="${profileImgUrl}?${bust}"></img>
+    `;
+  }
+
+  get userMenuTemplate() {
+    const { user, userMenuOpen, userMenuAnimate } = this;
+    const userMenuTabIndex = this.userMenuOpen ? '' : '-1';
+
+    const userMenu = html`
+      <user-menu
+        ?userMenuOpen="${userMenuOpen}"
+        ?userMenuAnimate="${userMenuAnimate}"
+        tabindex="${userMenuTabIndex}"
+        .user="${user}"
+        ></user-menu>
+    `;
+
+    return userMenu;
+  }
+
   render() {
     const searchFade = this.searchMenuFade ? 'fade-in' : '';
     const searchMenuToggleState = this.searchMenuOpen ? 'search-inactive' : '';
     const searchMenuOpen = this.searchMenuOpen ? 'flex' : 'search-inactive';
     const userMenuToggle = this.userMenuOpen ? 'active' : '';
     const searchMenuTabIndex = this.searchMenuOpen ? '' : '-1';
-    const userMenuTabIndex = this.userMenuOpen ? '' : '-1';
     const mediaMenuTabIndex = this.mediaMenuOpen ? '' : '-1';
     const baseColor = '#999';
     const activeColor = '#fff';
     const hamburgerColour = this.mediaMenuOpen ? activeColor : baseColor;
     const searchGlassColour = this.searchMenuOpen ? '#222' : baseColor;
-    const userColour = this.userMenuOpen ? activeColor : baseColor;
 
     return html`
       <nav class="navbar flex align-center">
@@ -101,7 +139,7 @@ export default class TopnavElement extends LitElement {
         <!--End of replacement div-->
         <div class="right flex align-center">
           <button class="user-menu ${userMenuToggle}" @click="${this.userMenu}">
-            <user-image colour="${userColour}"></user-image>
+            ${this.userNavButtonTemplate}
           </button>
         </div>
       </nav>
@@ -115,11 +153,7 @@ export default class TopnavElement extends LitElement {
         ?searchMenuAnimate="${this.searchMenuAnimate}"
         tabindex="${searchMenuTabIndex}"
       ></search-menu>
-      <user-menu
-        ?userMenuOpen="${this.userMenuOpen}"
-        ?userMenuAnimate="${this.userMenuAnimate}"
-        tabindex="${userMenuTabIndex}"
-      ></user-menu>
+      ${this.userMenuTemplate}
     `;
   }
 
