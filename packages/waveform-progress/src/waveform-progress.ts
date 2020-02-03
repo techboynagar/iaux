@@ -42,14 +42,11 @@ export default class WaveformProgress extends LitElement {
 
   private get zonesOfSilenceTemplate(): TemplateResult {
     return html`
-      ${this.zonesOfSilence.map(
-        (zone: ZoneOfSilence) => html`
-          <div
-            class="zone-of-silence"
-            style="left: ${zone.startPercent}%; width: ${zone.endPercent - zone.startPercent}%"
-          ></div>
-        `,
-      )}
+      ${this.zonesOfSilence.map((zone: ZoneOfSilence) => html`
+        <div
+          class="zone-of-silence"
+          style="left: ${zone.startPercent}%; width: ${zone.endPercent - zone.startPercent}%"
+        ></div>`,)}
     `;
   }
 

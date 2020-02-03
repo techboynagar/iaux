@@ -1,3 +1,3 @@
-import ScrubberBar from './lib/scrubber-bar.d';
+import ScrubberBar from './lib/scrubber-bar.d.ts';
 
 export { ScrubberBar };

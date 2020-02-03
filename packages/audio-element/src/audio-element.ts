@@ -74,11 +74,9 @@ export default class AudioElement extends LitElement {
         @pause=${this.playbackPaused}
         @canplay=${this.canplay}
       >
-        ${this.sources.map(
-          (source: AudioSource) => html`
-            <source src=${source.url} type=${source.mimetype} />
-          `,
-        )}
+        ${this.sources.map((source: AudioSource) => html`
+          <source src=${source.url} type=${source.mimetype} />
+        `,)}
       </audio>
     `;
   }

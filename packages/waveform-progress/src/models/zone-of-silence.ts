@@ -1,6 +1,7 @@
 export default class ZoneOfSilence {
-  startPercent: number = 0;
-  endPercent: number = 0;
+  startPercent = 0;
+
+  endPercent = 0;
 
   constructor(startPercent: number, endPercent: number) {
     this.startPercent = startPercent;

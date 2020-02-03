@@ -27,10 +27,10 @@ module.exports = (config) => {
       // Configure code coverage reporter
       coverageReporter: {
         reporters: [
-            // generates ./coverage/lcov.info
-            { type: 'lcovonly', subdir: '.' },
-            // generates ./coverage/coverage-final.json
-            { type: 'json', subdir: '.' },
+          // generates ./coverage/lcov.info
+          { type: 'lcovonly', subdir: '.' },
+          // generates ./coverage/coverage-final.json
+          { type: 'json', subdir: '.' },
         ]
       },
 
