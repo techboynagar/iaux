@@ -7,9 +7,9 @@
   "module": "index.js",
   "types": "index.d.ts",
   "files": [
+    "src/**/*",
     "lib/**/*",
     "!lib/demo",
-    "src/**/*",
     "index.d.ts",
     "index.js"
   ],
